@@ -1,0 +1,280 @@
+module gamematch
+{
+	struct GetMatchPlayByIdReq
+	{
+		0 require	int 		matchId;	           // 比赛id
+	};
+    struct PlayOption
+    {
+        0 require	string 		optionKey;	             // 玩法key
+        1 require	string 		optionValue;	         // 玩法值
+    };
+	struct GetMatchPlayByIdResp
+	{
+		0 require	int 		gameId;	             // 游戏id
+		1 require	int 		players;	         // 玩家数量
+		2 require	int 		minPlayers;	         // 最小玩家数量
+		3 require	int 		startMode;	         // 开启模式，0:满人即可，1:定时开赛
+		4 require	long 		beginTime;	         // 开始时间
+		5 require	long 		endTime;	         // 结束时间
+		6 require	int 		maxWaittime;	     // 最大等待时间
+		7 require	int 		numOfGame;	        // 每轮的局数
+		8 require	int 		autoRepeat;	       // 满人后是否自动重新开启另一场比赛，0:是，1:否
+		9 require	int 		initPoint;	       // 初始积分
+		10 require	int 		antes;	           // 底注
+		11 require	int 		templateId;	       // 比赛配置模板id
+		12 require	string 		matchNo;	       // 比赛序列号
+		13 require	int 		matchId;	       // 比赛id
+		14 require	int 		costType;	       // 报名费支付类型,2钻石,3房卡,4金币
+		15 require	int 		costValue;	       // 报名值
+		16 require	vector<PlayOption> 		playOptionList; // 玩法选项列表
+	};
+
+    struct ListCurrentMatchReq
+    {
+		0 require	int 		hostId;	           // 主办方id
+        1 require	int 		gameId;	            // 游戏id
+    };
+    
+    struct CurrentMatch
+	{
+    	0 require	int 		matchId;	        // 比赛id
+    	1 require	string 		matchName;	        // 比赛名称
+        2 require	int 		gameId;	            // 游戏id
+        3 require	string 		gameName;	        // 游戏名称
+		4 require	int 		players;	         // 玩家数量，即配置了多少人的比赛，实时动态报名玩家在另外的接口
+		5 require	int 		startMode;	         // 开启模式，0:满人即可，1:定时开赛
+        6 require	long 		beginTime;	         // 开始时间
+        7 require	string 		icon;	             // 图标
+        8 require	int 		costType;	        // 报名消耗类型 2钻石,3房卡,4金币
+        9 require	int 		costValue;	        // 报名消耗值
+        10 require	int 		gainType;	        // 第一名获取类型 2钻石,3房卡,4金币
+        11 require	int 		gainValue;	        // 第一名获取值
+        12 require	int 		numOfGame;	        // 每轮的局数
+        13 require	int 		templateId;	        // 模板id
+	};
+	
+	struct ListCurrentMatchResp
+    {
+        0 require	vector<CurrentMatch> 		currentMatchList; // 当前可参赛列表
+    };
+
+    struct ListMatchAwardByMatchIdReq
+	{
+		0 require	int 		matchId;	           // 比赛id
+	};
+	struct MatchAward
+    {
+        0 require	int 		rank;	            // 排名，从1开始
+        1 require	int 		gainType;	        // 获取类型 2钻石,3房卡,4金币
+        2 require	int 		gainValue;	        // 获取值
+    };
+	struct ListMatchAwardByMatchIdResp
+    {
+        0 require	vector<MatchAward> matchAwardList;      // 比赛奖励列表
+    };
+
+    struct ReportMatchBeginReq
+	{
+		0 require	bool 		isCreateMatch;	        // 是否创建另一场比赛，true：是，false：否
+		1 require	int 		matchId;	           // 比赛id
+		2 require	int 		templateId;	           // 模板id
+	};
+
+    struct ReportNumOfPlayerOnMatchReq
+	{
+		0 require	int 		matchId;	               // 比赛id
+		1 require	int 		templateId;	               // 模板id
+		2 require	int 		numOfPlayer;	           // 参数人数
+	};
+
+    struct GetMatchIdAndPlayersByTemplateIdReq
+	{
+		0 require	int 		templateId;	               // 模板id
+	};
+    struct GetMatchIdAndPlayersByTemplateIdResp
+	{
+		0 require	int 		matchId;	               // 比赛id
+        1 require	int 		numOfPlayer;	           // 参数人数
+	};
+
+    // 批量获取比赛id与参数人数
+    struct BatchGetMatchIdAndPlayersReq
+	{
+		0 require	vector<int> 		templateIdList;      // 模板id列表
+	};
+    struct MatchDynamic
+    {
+        0 require	int 		matchId;	               // 比赛id
+        1 require	int 		numOfPlayer;	           // 参数人数
+        2 require	int 		templateId;	               // 模板id
+    };
+    struct BatchGetMatchIdAndPlayers
+	{
+		0 require	vector<MatchDynamic> 		matchDynamicList;      // 比赛动态信息列表
+	};
+
+    // 查询比赛游戏配置列表
+    struct ListMatchConfigGameReq
+	{
+        0 require	int 		hostId;	                   // 主办方id，官方举办的比赛为10000
+	};
+    struct MatchConfigGame
+    {
+        0 require	int 		id;	                 // 记录id
+        1 require	int 		gameId;	            // 游戏id
+        2 require	string 		gameName;	        // 游戏名称
+        3 require	string 		icon;	            // 图标
+        4 require	int 		playerPerDesk;      // 每张桌子的人数
+    };
+    struct ListMatchConfigGameResp
+	{
+		0 require	vector<MatchConfigGame> 		matchConfigGameList;      // 比赛游戏配置列表
+	};
+
+	// 查询比赛退赛信息
+    struct GetMatchKnockOutInfoReq
+	{
+        0 require	int 		matchId;	               // 比赛id
+        1 require	int 		rank;	                   // 比赛名称
+	};
+    struct GetMatchKnockOutInfoResp
+    {
+        0 require	string 		matchName;	        // 比赛名称
+        1 require	int 		players;	        // 玩家数量，即配置了多少人的比赛
+        2 require	int 		gainType;	        // 获取类型 2钻石,3房卡,4金币
+        3 require	int 		gainValue;	        // 获取值
+    };
+
+	enum Eum_Action
+	{
+		E_A_SETTLEMENT=0,   //比赛结算
+		E_A_RANK_AWARD=1,	//排名奖励
+	};
+	struct MatchrecordServiceMsg
+	{
+		0 require 	Eum_Action	              eAct;		          //动作指令
+		1 require 	vector<byte>              vecData;  		  //请求数据	
+	};
+	//结算请求参数
+	struct Settlement
+	{
+		0 require   string                    matchNo;           //比赛编号
+		1 require   long                      uid;               //玩家ID
+		2 require   int                       rank;      		 //排名
+	};
+	//比赛结算
+	struct ReqMatchSettlement
+	{
+		0 require   vector<Settlement>        settlementList;    //结算请求参数列表
+		1 require   int                       isStatus;          //本场比赛状态 0未开始，1进行中，2:结束
+	};
+	//返回结算信息
+	struct RspMatchSettlement
+	{
+		0 require   int			              retCode;			  //消息编号 
+	};
+	
+	//比赛历史记录基本信息
+	struct MatchRecordData
+	{
+		0 require   int                       matchId;          		//比赛ID
+		1 require   int      				  matchConfigTemplateId; 	//游戏配置模板id
+		2 require   string                    matchName;                //比赛名称
+		3 require   int 					  gameId;                   //游戏ID
+		4 require   string                    gameName;                 //游戏名称
+		5 require   int                       hostId;         	  	    //主办方ID
+		6 require	string                    icon;					    //图标
+		7 require   int 					  costType;				    //报名费支付类型,2钻石,3房卡,4金币
+		8 require   int 					  costValue;				//报名费值
+		9 require   string 					  beginTime;				//开始时间
+		10 require  string 					  endTime;					//结束时间
+		11 require  int						  players;					//参赛人数
+		12 require  int						  minPlayers;				//最小开始人数
+		13 require  int						  numOfGame;				//每轮的局数，默认3局
+		14 require  int						  startMode;				//开启模式，0:满人即可，1:定时开赛
+		15 require	int						  autoRepeat;               //满人后是否自动重新开启另一场比赛，0:是，1:否
+		16 require  int						  maxWaittime;				//最大等待时间，单位小时
+		17 require  int						  status;					//状态，0未开始，1进行中，2:结束
+		18 require  string					  createTime;				//创建时间
+		19 require  string 					  createMan;				//修改人，管理员填system，其他用户填创建人id
+		20 require  int 					  initPoint;				//初始积分
+		21 require  int						  antes;					//底注
+		22 require  string                    matchNo;                  //比赛编号
+	};
+	//比赛玩法配置信息
+	struct MatchOptionRecord
+	{
+		0 require   string                    matchNo;           //比赛编号
+		1 require   string                    optionKey;		 //选项key值
+		2 require   string                    optionValue;       //选项值
+		3 require   string                    description;		 //描述
+	};
+	//比赛排名奖励配置信息
+	struct MatchAwardRecord
+	{
+		0 require   string                    matchNo;           //比赛编号
+		1 require   int                       rank;		  	     //名次，1为第一名，依次类推
+		2 require   int                       awardType;         //奖励类型，2钻石,3房卡,4金币
+		3 require   int                       awardValue;		 //奖励值
+	};
+	//请求获取比赛历史记录及相关配置表
+	struct ReqMatchRecord
+	{
+		0 require   MatchRecordData      		  matchRecord;             //比赛历史记录基本信息
+		1 require   vector<MatchOptionRecord>  	  matchOptionRecordList;   //比赛玩法配置信息
+		2 require   vector<MatchAwardRecord>   	  matchawardRecordList;    //比赛排名奖励配置信息
+	};
+
+	struct MatchOptionRecordList
+	{
+		0 require   vector<MatchOptionRecord>  	  matchOptionRecordList;   //比赛玩法配置信息
+	};
+
+	struct MatchawardRecordList
+	{
+		0 require   vector<MatchAwardRecord>   	  matchawardRecordList;    //比赛排名奖励配置信息
+	};
+
+	//返回获取比赛历史记录及相关配置
+	struct RspMatchRecord
+	{
+		0 require   int			              retCode;			  //消息编号
+	};
+
+	//获取比赛历史排名奖励配置信息请求数据
+	struct ReqMatchAwardRecord
+	{
+		0 require   string                    matchNo;           //比赛编号
+	};
+	
+	//获取比赛历史排名奖励配置信息响应数据
+	struct RspMatchAwardRecord
+	{
+	    0 require   int			              retCode;			       //消息编号
+		1 require   vector<MatchAwardRecord>  matchawardRecordList;    //比赛排名奖励配置信息
+	};
+	
+	//获取某场比赛指定排名奖励信息请求数据
+	struct TReqMatchRankAward
+	{
+		0 require 	string					  sMatchNo;           //比赛编号
+		1 require	int						  iRank;		      //排名
+	};
+	
+	//比赛奖励
+	struct TMatchAward
+	{
+		0 require	int						 iAwardType;		 //奖励类型，2钻石,3房卡,4金币
+		1 require	int						 iAwardValue;		 //奖励值
+	};
+	
+	//获取某场比赛指定排名奖励信息响应数据
+	struct TRspMatchRankAward
+	{
+		0 require	int						 iRetCode;			  //消息号
+		1 optional	string					 sMatchName;		  //比赛名称
+		2 optional	int 					 iPlayers;			  //比赛人数
+		3 optional  vector<TMatchAward>		 vecMatchAwards;	  //奖励信息
+	};
+};

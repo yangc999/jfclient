@@ -1,0 +1,125 @@
+module pay
+{
+	//请求动作指令
+	enum Eum_Action
+	{
+		E_A_RECOMMEND=0,    //订单推荐
+		E_A_DIAMOND=1,		//钻石购买
+		E_A_WEIXIN=3,		//微信支付
+		E_A_ALIPAY=4,       //支付宝支付
+		E_A_IOS=5,         	//苹果内购
+		E_A_ORDER_STATUS=6, //订单状态查询
+	};
+	
+	//支付服务消息
+	struct TPayMsg
+	{
+		0 require 	Eum_Action	    eAct;		  //动作指令
+		1 require 	vector<byte>    vecData;  	  //请求数据	
+	};
+			
+	//订单推荐请求数据
+	struct TReqOrderRecommend
+	{
+		0 require 	long			lUid;			 //用户ID
+		1 require 	long			lMissingGold;	 //缺少金币值
+	};
+	
+	//订单推荐响应数据
+	struct TRspOrderRecommend
+	{
+		0 require	int 			iRetCode;		 //消息编号
+		1 optional  int 			iGOid;			 //金币兑换单号配置ID
+		2 optional  int 			iDOid;			 //钻石购买单号配置ID
+	};
+	
+	//钻石购买请求数据
+	struct TReqDiamondPay
+	{
+		0 require	long			lUid;		 //用户ID
+		1 require	int 			iOid;		 //订单配置ID
+	};
+	
+	//钻石购买响应数据
+	struct TRspDiamondPay
+	{
+		0 require	int				iRetCode;	 	//消息编号
+		1 optional  int 			iAfterDiamond;	//购后钻石剩余数量
+		2 optional  long 			lAfterValue;	//购买获得对应货币的剩余数量
+	};
+	
+	//微信支付下单请求数据
+	struct TReqWeixinOrder
+	{
+		0 require	long			lUid;		//用户ID
+		1 require	int 			iOid;		//订单配置ID
+		2 optional  int 			iGOid;		//快捷支付，金币快速兑换订单配置ID
+	};
+	
+	//微信客户端调起支付接口参数
+	struct TWeixinTuneup
+	{
+		0 require	string			sAppid;			//应用ID (appid)
+		1 require	string			sPartnerid;		//商户号 (partnerid)
+		2 require	string			sPrepayid;		//预支付交易会话 (prepayid)
+		3 require	string			sPackage;		//扩展字段，暂填写固定值Sign=WXPay (package)
+		4 require	string			sNoncestr;		//随机字符串 (noncestr)
+		5 require	string			sTimestamp;		//时间戳 (timestamp)
+		6 require	string			sSign;			//签名 (sign)
+	};
+	
+	//微信支付下单响应数据
+	struct TRspWeixinOrder
+	{	
+		0 require	int				iRetCode;	   	//消息编号
+		1 optional	TWeixinTuneup	eTuneup;		//客户端发起支付参数
+		2 optional  string			sOrderNo;		//紫金阁订单号
+	};
+	
+	//支付宝支付下单请求数据
+	struct TReqAlipayOrder
+	{
+		0 require	long			lUid;		//用户ID
+		1 require	int 			iOid;		//订单配置ID
+		2 optional  int 			iGOid;		//快捷支付，金币快速兑换订单配置ID
+	};
+	
+	//支付宝支付下单响应数据
+	struct TRspAlipayOrder
+	{
+		0 require	int				iRetCode;	   	//消息编号
+		1 optional	string			sResponeBody;	//支付宝返回的客户端请求数据
+		2 optional  string			sOrderNo;		//紫金阁订单号
+	};
+	
+	//IOS支付下单请求数据
+	struct TReqIosOrder
+	{
+		0 require	long			lUid;		//用户ID
+		1 require	int 			iOid;		//订单配置ID
+		2 optional  int 			iGOid;		//快捷支付，金币快速兑换订单配置ID
+	};
+	
+	//IOS支付下单响应数据
+	struct TRspIosOrder
+	{
+		0 require	int				iRetCode;	   	//消息编号
+		1 optional	string			sPayItem;		//购买项目名，如： com.ddmgame.zjg.diamond1
+		2 optional	int				iPrice;			//订单价格，单位元
+		3 optional  string			sOrderNo;		//紫金阁订单号
+	};
+
+	//支付订单状态查询请求数据
+	struct TReqPayOrderStatus
+	{
+		0 require	string 			sOrderNo;		//紫金阁订单编号
+	};
+	
+	//支付订单状态查询响应数据
+	struct TRspPayOrderStatus
+	{
+		0 require	int				iRetCode;	   	//消息编号
+		1 optional	bool			bIsDone;		//是否完成支付
+	};
+	
+};

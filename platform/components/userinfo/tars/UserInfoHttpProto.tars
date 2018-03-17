@@ -1,0 +1,166 @@
+#include "UserInfoCommProto.tars"
+
+module userinfo
+{
+	//用户信息请求
+	enum Eum_Action
+	{	
+		E_A_MOBILE_CODE=0,         	//发送手机验证码
+		E_A_INFO=1,	   			//用户信息
+		E_A_WEALTH=2,	   		//用户财富
+		E_A_SAFE=3,				//保险箱
+		E_A_BIND=4,				//信息绑定
+		E_A_REALNAME=5,			//实名认证
+		E_A_PERFECT=6,			//信息完善情况
+	};
+	
+	//用户信息协议封装
+	struct TUserInfoMsg
+	{
+		0 require 	Eum_Action	    eAct;		  //动作指令
+		1 require 	vector<byte>    vecData;  	  //请求数据	
+	};
+	
+	//获取短信验证码请求数据
+	struct TReqMoblieCode
+	{
+		0 require	long			lUid;			//用户ID
+		1 require 	string			sMoblieNo;	    //手机号
+		2 require   int 			iTplType;       //短信模板类型 0.通用模板 1.找回密码
+	};
+	
+	//获取短信验证码响应数据
+	struct	TRspMoblieCode
+	{
+		0 require	int				iRetCode;	   	//消息编号
+	};
+
+	//用户信息数据
+	struct TUserInfo
+	{
+		1 optional	string		sUserName;		   //用户名
+		2 optional	string		sNickName;		   //昵称
+		3 optional	int			iHeadId;		   //头像编号
+		4 optional	string		sHeadStr;		   //头像路径
+		5 optional	short		nGender;		   //性别： 0.未知 1.男 2.女
+		6 optional	string		sMobile;		   //手机号码
+		7 optional	string		sSignature;		   //个性签名
+		8 optional	long		lGold;			   //金币
+		9 optional	long		lSafesGold;		   //保险箱金币
+		10 optional   int		 iRoomCard;		   //房卡	
+		11 optional   int		 iDiamond;		   //钻石
+		12 optional   int		 iExperience;	   //用户当前经验值
+		13 optional   int		 iVipLevel;		   //VIP等级	
+		14 optional string		 sRegTime;		   //注册时间
+	};
+
+	//用户信息请求数据
+	struct TReqUserInfo
+	{
+		0 require   long			lUid;		  	//用户ID
+		1 require	int 			iModif;		  	//请求类型 0.查询 1.更新
+		2 optional  TUserInfo		eUserInfo;		//更新信息携带
+	};
+
+	//用户信息响应数据
+	struct TRspUserInfo
+	{
+		0 require	int				iRetCode;	   	//消息编号 
+		1 require	TUserInfo 		eUserInfo;		//用户信息  
+	};
+	
+	//获取用户财富请求数据
+	struct TReqReadUserWealth
+	{
+		0 require   long			lUid;		  	//用户ID
+	};
+	
+	struct TUserWealth
+	{
+		0 optional	long		lGold;			   //金币
+		1 optional	long		lSafesGold;		   //保险箱金币
+		2 optional  int		    iRoomCard;		   //房卡	
+		3 optional  int		    iDiamond;		   //钻石
+		4 optional  int		    iPoint;		       //积分
+	};
+
+	//获取用户财富响应数据
+	struct TRspReadUserWealth
+	{
+		0 require	int				iRetCode;	   	//消息编号 
+		1 require	TUserWealth 	eUserWealth;		//用户信息  
+	};
+	
+	//绑定手机请求数据
+	struct TReqBindMobile
+	{
+		0 require	long			lUid;			//用户ID
+		1 require	string			sInputCode;		//手机验证码
+	};
+	
+	//绑定手机响应数据
+	struct TRspBindMobile
+	{
+		0 require	int				iRetCode;	   	//消息编号
+	};
+	
+	//保险箱操作指令
+	enum Eum_SafeOperate
+	{
+		E_SO_DEPOSIT=0,				//存入
+		E_SO_WITHDRAW=1,			//提取
+		E_SO_SETPASS=2,				//设置密码
+		E_SO_MODIFPASS=3,			//修改密码
+		E_SO_RESETPASS=4,			//重置密码
+	};
+	
+	//保险箱操作请求数据
+	struct TReqSafeBox
+	{
+		0 require  long				lUid;			//用户ID
+		1 require  Eum_SafeOperate	eSafeOperate; 	//操作指令
+		2 optional long				lAmount;		//存入、取出数量
+		3 optional string			sPassWord;		//取出和设置指令密码
+		4 optional string			sOldPassWord;	//修改密码指令旧密码
+		5 optional string			sMobileCode;	//手机验证码
+	};
+	
+	//保险箱操作响应数据
+	struct TRspSafeBox
+	{
+		0 require 	int				iRetCode;		//消息编号
+		1 optional	long			lGold;			//身上金币
+		2 optional	long			lSafeGold;		//保险箱金币
+		3 optional	string			sNewPass;		//重置密码后的新密码
+	};
+	
+	//实名认证请求数据
+	struct TReqRealName
+	{
+		0 require   long			lUid;			//用户ID
+		1 require	string 			sRealname;		//真实姓名
+		2 require   string 			sIdcNo;			//身份证号码
+	};
+	
+	//实名认证响应数据
+	struct TRspRealName
+	{
+		0 require 	int				iRetCode;		//消息编号
+	};
+	
+	//信息完善情况请求数据
+	struct TReqPerfectInfo
+	{
+		0 require 	long 			lUid;			//用户ID
+	};
+	
+	//信息完善情况请求数据
+	struct TRspPerfectInfo
+	{
+		0 require 	int				iRetCode;		//消息编号
+		1 optional  bool			bSafePwdSet;	//是否设置银行保险箱密码
+		2 optional	bool			bRealNameSet;	//是否实名认证
+		3 optional	bool			bMobileBind;	//是否绑定手机
+		4 optional  bool			bAgcBelong;		//是否有代理归属
+	};
+};

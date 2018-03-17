@@ -1,0 +1,1 @@
+cc.exports.SettingCommand = import(".command.SettingCommand")

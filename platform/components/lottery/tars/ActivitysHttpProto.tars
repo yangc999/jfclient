@@ -1,0 +1,105 @@
+module activities
+{
+
+	//活动ID
+	enum Eum_Action
+	{
+		LUCK_ROLLER_LIST = 1, //幸运转盘列表
+		LUCK_ROLLER_CLICK = 2, //抽奖
+		LUCK_ROLLER_LOG_USER=3, //用户抽奖记录
+		LUCK_ROLLER_LOG_TOTAL=4, //抽奖总记录
+	};
+	struct ActivityMsg
+	{
+		0 require 	Eum_Action            eAct;		          //动作指令
+		1 require 	vector<byte>              vecData;  		  //请求数据	
+	};
+
+	enum Eum_RollerType
+    {
+        ROLLER_FREE = 1, 	//免费转盘
+        ROLLER_PAY	= 2,		//付费转盘
+    };
+
+    //返回数据定义
+    struct RollerData
+    {
+        0	require int	iAwardId;		//奖品ID , 在数据库中为自增ID,主键唯一标示
+        1	require string	sPropName;	//奖励的道具名称
+        2	require	int 	iIconId;	//道具图标默认ID号
+        3	require string	sIcon;		//道具图标网络地址(优先于图标ID)
+        4	require int		iRollerType;//所属转盘类型
+        5	require long	lTime;		//时间
+        6   optional    string  sNickName;  //昵称
+    };
+
+    struct ListTotalData
+    {
+        0	require long 		lUid;	//用户ID
+        1	require	RollerData	rData;	//奖励
+    };
+	//转盘列表 Start =============================================
+	//转盘道具列表请求数据
+	struct ReqRollerListData
+	{
+		0	require	int iUid;			//用户ID
+	};
+	//转盘道具列表返回数据
+	struct RspRollerListData
+	{
+		0	require		int					iResult;			//返回结果码: 0 成功, 其他
+		1	require 	int 				iFreeTimes;			//可使用的免费抽奖次数
+		2	require 	int 				iPayTimes;			//可以用的付费抽奖免费次数(首先使用免费次数,没有就使用货币支付);
+		3	optional	vector<RollerData>	vFreeRollerData;	//免费转盘列表
+		4	optional	vector<RollerData>	vPayRollerData;		//付费转盘列表
+	}; 
+	//转盘列表 End =============================================
+	
+	
+	//抽奖操作 Start ====================================
+	struct ReqLotteryDraw                              
+	{                                                  
+		0	require	int	iUid;			//抽奖用户ID	
+		1	require	int	iRollerType;	//转盘类型     
+	};                                                 
+	struct RspLotteryDraw                              
+	{                                                  
+		0	require	int iResult;	//0成功, 其他
+		1   require int iFreeTimes; //免费剩余次数
+		2   require int iPayTimes;  //付费剩余次数
+		3	require RollerData	rAwardInfo;	//奖品信息
+	};                                                 
+	//抽奖操作 End ======================================
+	
+	
+	//自己记录列表 Start ==============================================
+	
+	struct ReqListUser
+	{
+		0	require	long				lUid;		//用户ID
+	};
+	
+	struct RspListUser
+	{
+		0	require	int					iResult;	//0成功, 其他
+		1	require	long				lUid;		//用户ID
+		2	require	vector<RollerData>	vlogList;	//列表
+	};
+	//自己记录列表 End ================================================
+		
+	
+	
+	//总记录列表 Start ====================================================================
+	struct ReqListTotal
+	{
+		0	require	long	lUid;	//用户ID
+	};
+	
+	struct RspListTotal
+	{
+		0	require	int						iResult;	// 0 成功, 其他
+		1	require	vector<ListTotalData>	vTotalList;	//列表
+	};
+	
+	//总记录列表 End =====================================================================
+};

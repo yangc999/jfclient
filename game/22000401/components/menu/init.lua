@@ -1,0 +1,5 @@
+cc.exports.MenuCommand = import(".command.MenuCommand")
+cc.exports.PiaoReqCommand = import(".command.PiaoReqCommand")
+cc.exports.MEGameStationCommand = import(".command.MEGameStationCommand")
+cc.exports.AutoReqCommand = import(".command.AutoReqCommand")
+cc.exports.MEAutoInfoCommand = import(".command.MEAutoInfoCommand")

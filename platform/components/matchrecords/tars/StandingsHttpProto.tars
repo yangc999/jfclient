@@ -1,0 +1,298 @@
+module standings
+{
+	//请求动作指令
+	enum Eum_Action
+	{
+		E_A_PRIV_ROWCOUNT=0,			//战绩列表总行数
+		E_A_PRIV_ROOMLIST=1,         	//私人房战绩房间列表
+		E_A_PRIV_ROUNDLIST=2,         	//私人房战绩局数列表
+		E_A_SHARE_VIDEO=3,				//录像分享
+		E_A_WATCH_VIDEO=4,				//查看录像
+		E_A_WATCH_SHARE_VIDEO=5,		//查看他人分享录像
+
+        E_B_MATCH_ROWCOUNT=6,			//战绩列表总行数
+        E_B_MATCH_ROOMRECORDLIST=7,     //用户房间记录列表
+        E_B_MATCH_RECORDLIST =8,        //比赛场战绩房间列表
+
+        E_C_MATCH_RANKCOUNT= 9,         //比赛排行总数
+        E_C_MATCH_RANKLIST = 10,         //比赛排行列表
+        E_C_MATCH_RANKDETAIL=11         //比赛排行详情
+	};
+	
+	//战绩服务消息
+	struct TStandingsMsg
+	{
+		0 require 	Eum_Action	    eAct;		  //动作指令
+		1 require 	vector<byte>    vecData;  	  //请求数据	
+	};
+	
+	//私人场战绩总行数请求数据
+	struct TReqRowCount
+	{
+		0 require	long			lUid;		 //用户ID
+		1 require	int 			iGameID;	 //游戏ID
+	};
+	
+	//私人场战绩总行数响应数据
+	struct TRspRowCount
+	{
+		0 require   int				iRetCode;	 		//消息编号 
+		1 optional  int				iRowCount;	 		//总行数
+	};
+	
+	//战绩房间列表请求数据
+	struct TReqRoomRecordList
+	{
+		0 require	long			lUid;		  //用户ID
+		1 require	int				iGameID;	  //游戏ID
+        2 require	int				iStartIndex;  //起始索引
+        3 require	int				iEndIndex;    //结束索引
+	};
+	
+	//用户房间总战绩
+	struct TUserSumStands
+	{
+		0 require	long			lUid;	 		//用户ID
+		1 require	string			sNickName;	 	//用户昵称
+		2 require	long			lChangeValue;	//变化值
+	};
+	
+	//战绩房间信息
+	struct TPrivRoomInfo
+	{
+		0 require	int 						iIndex;					//索引
+		1 require	int							iGameID;				//游戏ID
+		2 require	string						sRoomNo;	 			//房号编号
+		3 require	string						sRoomKey;	 			//房号暗号
+		4 require	long						lDisMissTime;			//解散时间
+		5 require	string 						sConfig;				//配置（玩法）
+		6 require	vector<TUserSumStands>		vecSumStands;		    //用户累计战绩
+	};
+	
+	//战绩房间列表返回数据
+	struct TRspRoomRecordList
+	{
+		0 require   int							iRetCode;				//消息编号 
+		1 optional	vector<TPrivRoomInfo>		vecRoomInfo;			//房间信息列表
+	};
+	
+	//战绩局数列表请求数据
+	struct TReqRoundRecordList
+	{
+		0 require	string 						sRoomNo;				//房间编号
+	};
+	
+	//用户房间每局战绩
+	struct TUserStands
+	{
+		0 require	long			lUid;	 		//用户ID
+		1 require	string			sNickName;		//用户昵称
+		2 require	long			lChangeValue;	//变化值
+	};
+		
+	//战绩局数详情
+	struct TPrivRoundInfo
+	{
+		0 require	int							iRoundNo;				//局数
+		1 require	long						lEndTime;				//结束时间
+		2 require	vector<TUserStands> 		vecUserStands;		    //用户战绩
+	};
+	
+	//战绩局数列表响应数据
+	struct TRspRoundRecordList
+	{
+		0 require   int							iRetCode;				//消息编号
+		1 optional	vector<TPrivRoundInfo>		eRoundInfo;				//局数信息列表
+	};
+	
+	//分享录像请求数据
+	struct TReqShareVideo
+	{
+		0 require	string						sRoomNo;				//房间编号
+		1 require	int							iRoundNo;				//回合数
+	};
+	
+	//分享录像响应数据
+	struct TRspShareVideo
+	{
+		0 require   int							iRetCode;				//消息编号
+		1 optional	string						sShareCode;				//分享码
+	};
+	
+	//查看录像请求数据
+	struct TReqWatchVideo
+	{
+		0 require	string						sRoomNo;				//房间编号
+		1 require	int							iRoundNo;				//回合数
+	};
+	
+	//查看录像响应数据
+	struct TRspWatchVideo
+	{
+		0 require   int							iRetCode;				//消息编号
+		1 optional	string						sVideoPath;				//录像地址
+	};
+	
+	//查看他人分享录像请求数据
+	struct TReqWatchShareVideo
+	{
+		0 require	string						sShareCode;				//分享码
+	};
+	
+	//查看他人分享录像响应数据
+	struct TRspWatchShareVideo
+	{
+		0 require   int							iRetCode;				//消息编号
+		1 optional	string						sVideoPath;				//录像地址
+	};
+
+
+
+
+    //比赛场战绩总行数数据 Start =======================================================
+    struct TReqRowCountMatch
+    {
+        0 require	long			lUid;		 //用户ID
+        1 require	int 			iGameID;	 //游戏ID
+    };
+
+
+    struct TRspRowCountMatch
+    {
+        0 require   int				iRetCode;	 		//消息编号
+        1 optional  int				iRowCount;	 		//总行数
+    };
+    //比赛场战绩总行数数据 End ==========================================================
+
+	//比赛场战绩房间列表数据 Start =========================================================
+
+    //比赛场用户房间总战绩
+    struct TUserSumStandsMatch
+    {
+        0 require	long			lUid;	 		//用户ID
+        1 require	string			sNickName;	 	//用户昵称
+        2 require	long			lChangeValue;	//变化值
+    };
+
+    //比赛场战绩房间信息
+    struct TMatchRoomInfo
+    {
+        0 require	int 						iIndex;					//索引
+        1 require	string						sRoomNo;	 			//房号
+        2 require	long						lDisMissTime;			//解散时间
+        3 require	string 						sConfig;				//配置（玩法）
+        4 require	vector<TUserSumStandsMatch>		vecSumStands;		    //用户累计战绩
+    };
+    struct TReqRoomRecordListMatch
+    {
+        0 require	long			lUid;		  //用户ID
+        1 require	int				iGameID;	  //游戏ID
+        2 require	int				iStartIndex;  //起始索引
+        3 require	int				iEndIndex;    //结束索引
+    };
+    //比赛场战绩房间列表返回数据
+    struct TRspRoomRecordListMatch
+    {
+        0 require   int							iRetCode;				//消息编号
+        1 optional	vector<TMatchRoomInfo>		vecRoomInfo;			//房间信息列表
+    };
+    //战绩房间列表数据 End =========================================================
+
+
+    //比赛场战绩局数列表数据 Start =========================================================
+    struct TReqRoundRecordListMatch
+    {
+        0 require	string 						sRoomNo;				//房间编号
+    };
+
+    //比赛场用户房间每局战绩
+    struct TUserStandsMatch
+    {
+        0 require	long			lUid;	 		//用户ID
+		1 require	string			sNickName;		//用户昵称
+		2 require	long			lChangeValue;	//变化值
+    };
+
+    //比赛场战绩局数详情
+    struct TMatchGameRoundInfo
+    {
+        0 require	int							iRoundNo;				//局数
+        1 require	long						lEndTime;				//结束时间
+        2 require	string						sVideoPath;				//录像路径
+        3 require	vector<TUserStandsMatch> 		vecUserStands;		    //用户战绩
+    };
+
+    //比赛场战绩局数列表响应数据
+    struct TRspRoundRecordListMatch
+    {
+        0 require   int							iRetCode;				//消息编号
+        1 optional	vector<TMatchGameRoundInfo>		eRoundInfo;				//局数信息列表
+    };
+    //比赛场战绩局数列表数据 End =========================================================
+
+
+
+
+
+    //比赛场排名总数 Start ===================================================
+    struct TReqRankListCount
+    {
+        0 require	long			lUid;		 //用户ID
+        1 require	string 			sMatchNo;	 //比赛编号
+    };
+
+    struct TRspRankListCount
+    {
+        0 require   int				iRetCode;	 		//消息编号
+        1 optional  int				iRowCount;	 		//总行数
+    };
+
+    //比赛场排名总数 End ===================================================
+
+
+    //比赛场排名列表 Start ===================================================
+
+    struct TReqRankList
+    {
+        0   require   long lUid;     //用户ID
+    };
+    struct RankInfo
+    {
+        0   require int     iRankNo;    //名次
+        1   require long    lUid;       //玩家ID
+        2   require string  sAward;     //奖品
+    };
+
+    struct  MatchRankListInfo
+    {
+        0   require     string                          sMatchNo;       //比赛编号
+        1   require     int                             iGameID;        //游戏ID
+        2   require     int                             iDismissTime;   //解散时间(时间戳)
+        3   optional    vector<RankInfo>     vRankListAll;    //所有排名
+    };
+    
+    struct  TRspRankList
+    {
+        0   require     int                             iRecCode;       //返回编号
+        1   optional    vector<MatchRankListInfo>       vRankList;      //列表
+    };
+
+    //比赛场排名列表 End   ===================================================
+
+    //比赛场排名详情 Start =======================================================
+
+    struct TReqRankDetail
+    {
+        0   require string sMatchNo;    //比赛编号
+    };
+
+    struct TRspRankDetail
+    {
+        0   require int			iRetCode;	//消息编号
+        1   require long        lUid;       //用户ID
+        2   require int         iRank;      //排名
+        3   require string      sAward;     //奖励
+    };
+
+    //比赛场排名详情 Start =======================================================
+};

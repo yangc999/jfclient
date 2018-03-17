@@ -1,0 +1,40 @@
+module commonstruct
+{
+	enum ActionName
+	{
+		CONF_GET_VALUE_BY_KEY=0,		   // 通过key值获取value
+		CONF_LIST_CONFIG_BY_KEY_GROUP=1,   // 通过key组名值获取config列表
+		CONF_LIST_GAME_CONF_BY_GAME_ID=2,  // 通过gameId获取游戏配置列表
+		CONF_LIST_CONF_BY_KEY_LIST=3,      // 通过key列表批量获取config列表
+		CONF_LIST_GAME_ROOM_CLIENT=4,      // 通过游戏id列表批量获取游戏房间配置列表给客户端
+		CONF_LIST_LONG_TEXT_BY_TYPE=5,     // 通过类型获取长文本列表
+		CONF_LIST_ANNOUNCEMENT_BASE=6,     //  获取公告基础列表
+		CONF_GET_ANNOUNCEMENT_BY_ID=7,     //  通过公告id获取公告内容
+		CONF_LIST_SHOP_ORDER_BY_GAIN_TYPE=8,//  根据购买类型获取商城订单配置
+
+		DYN_GET_DESK_CONF_BY_ROOM_ID=50,     // 通过服务id和roomid获取桌子配置
+		DYN_LIST_DESK_INFO_BY_DESK_ID_LIST=51,             // 通过桌子id列表获取桌子信息列表
+
+		MATCH_LIST_CURRENT_MATCH=100,                      // 获取当前参赛列表
+		MATCH_LIST_MATCH_AWARD_BY_MATCH_ID=101,            // 根据比赛id获取奖品列表
+		MATCH_GET_MATCH_ID_AND_PLAYERS_BY_TEMPLATE_ID=102,     // 根据模板id获取比赛id与参数人数
+	    MATCH_BATCH_GET_MATCH_ID_AND_PLAYERS=103,             // 批量获取比赛id与参数人数
+		MATCH_LIST_MATCH_CONFIG_GAME=104,                    // 查询比赛游戏配置列表
+		MATCH_GET_MATCH_KNOCK_OUT_INFO=105,                    // 查询比赛退赛信息
+	};
+
+	// 服务请求头
+	struct CommonReqHead
+	{
+		0 require	ActionName 		actionName;	        // 请求动作名
+		1 optional	vector<byte>    reqBodyBytes;	    // 请求数据体
+	};
+
+	// 服务应答头
+	struct CommonRespHead
+	{
+		0 require	int 		resultCode;	        // 请求结果码
+		1 optional	vector<byte> respBodyBytes;		// 返回数据体
+	};
+
+};

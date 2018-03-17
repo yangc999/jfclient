@@ -1,0 +1,1 @@
+cc.exports.HelpCommand = import(".command.HelpCommand")

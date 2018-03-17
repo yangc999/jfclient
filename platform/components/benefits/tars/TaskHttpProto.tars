@@ -1,0 +1,111 @@
+module task
+{
+	enum Eum_Action
+	{
+		E_A_GETTASK=0,          //获取我的任务信息
+		E_A_PERFORMTASK=1,      //执行任务并领取奖励(或只执行任务不领取奖励)
+		E_A_TASKREWARDS=2       //领取奖励
+	};
+	
+	struct TTaskServiceMsg
+	{
+		0 require 	Eum_Action	              eAct;		          //动作指令
+		1 require 	vector<byte>              vecData;  		  //请求数据	
+	};
+	
+	//获取我的任务信息
+	struct TReqTask
+	{
+		0 require       long                    lUid;               //玩家ID
+		1 require       vector<int> 		    vTaskidList;        //指定任务ID
+		2 optional      string                  sTriggerKey;        //触发参数
+	};
+
+	//任务关系信息
+	struct Taskrelative
+	{
+		0 require        int                   iId;                        //关系id
+		1 optional       string                sTriggerKey;                //任务触发键
+		2 optional       int                   iTriggerValue;              //任务触发值(特殊任务另外使用，如破产补助为每日可用次数)
+		3 optional       string                sIcon;                      //关系触发图标
+		4 require        int                   iIrewardType;               //奖励类型：0 不奖励 1 金币 2 钻石 3 房卡 4 道具 
+		5 optional       int                   iRewardCount;               //奖励值
+		6 optional       string                sRewardPropName;            //道具名称
+		7 optional       string                sRewardPropIcon;            //道具图标
+		8 optional       int                   iIsBox;                     //是否是宝箱类型（即多种奖励类型）0 否 1 是
+	};
+	
+	//我的任务信息
+	struct TaskList
+	{
+		0  require        long                  lUid;                //玩家id
+		1  require        int                   iTaskId;             //任务id
+		2  require        string                sTaskName;           //任务名称
+		3  require        string                sTaskDetail;         //任务描述
+		4  optional       string                sTaskIcon;           //任务图标
+		5  optional       int                   iGameId;             //游戏ID
+		6  require        int                   iTaskAvailableCount; //任务总次数
+		7  require	      int 		            iRewardType;	     //奖励类型，1:复合类型，2:分阶段，11:金币，12:房卡，13:钻石
+		8  optional       int                   iRewardValue;        //奖励值
+        9  optional	      int 		            iRelative;	         //关系值,当奖励类型为复合类型、分阶段等时关联对应的列表
+        10 optional       int                   iRewardStatus;       //-1末领取只出现在服务器的内存中 0领取 1成功末领取奖励 2失败 3成功且领取了奖励 4时间过期失效
+        11 optional       vector<Taskrelative>  vTaskrelative;       //任务关系列表（任务触发条件、奖励，只有任务分阶段或者奖励多种时存在值）
+        12 optional       int                   iCurrentCount;       //当前任务完成次数
+        13 optional       string                sTValue;             //触发任务值(特殊任务使用：如邀请码)
+        14 optional       int                   iExcution;           //今日是否执行过且执行完（0：未执行 1：已执行）
+	};
+	
+	//返回任务信息
+	struct TRspTask
+	{
+		0 require   int			              iRetCode;			      //消息编号 
+		1 optional 	vector<TaskList>	  	  vTaskList;              //任务基本配置信息
+	};
+	
+	//执行任务
+	struct TReqPerformTask
+	{
+		0 require        long                 lUid;                   //玩家ID
+		1 require        int                  iTaskId;                //任务ID
+		2 optional       string               sTValue;                //触发任务值（如输入邀请码）
+		3 optional       string               sExtend;                //其他参数(如传指定任务枚举)
+	};
+	
+	//任务执行当前状态及奖励
+	struct TaskCurrentInfo
+	{
+		0  require        long                  lUid;                   //玩家ID
+		1  require        int                   iTaskId;                //任务ID
+		2  optional       int                   iTaskAvailableCount;    //任务总次数
+        4  optional       int                   iCurrentCount;          //当前任务完成次数
+        5  require	      int 		            iRewardType;	        //奖励类型，0 不奖励 1 金币 2 钻石 3 房卡 4 道具 
+        6  optional       int                   iRewardValue;           //奖励值
+        7  optional       int                   iRewardStatus;          //-1末领取只出现在服务器的内存中 0领取 1成功末领取奖励 2失败 3成功且领取了奖励 4时间过期失效
+        8  optional	      int 		            iRelative;	            //关系值,当奖励类型为复合类型、分阶段等时关联对应的列表
+        9  optional       vector<Taskrelative>  vTaskrelative;          //任务关系列表（任务触发条件、奖励，只有任务分阶段或者奖励多种时存在值）
+        10 optional       int                   iExcution;              //今日是否执行过且执行完（0：未执行 1：已执行）
+	};
+	
+	//返回执行任务
+	struct TRspPerformTask
+	{
+		0 require         int			              iRetCode;			//消息编号 
+		1 optional        TaskCurrentInfo             TaskInfo;         //任务状态
+	};
+	
+	//领取奖励
+	struct TReqGetTaskRewards
+	{
+		0 require        long                 lUid;                   //玩家ID
+		1 require        int                  iTaskId;                //任务ID
+		2 optional       string               sTValue;                //触发任务值
+		3 optional       string               sExtend;                //其他参数(如传指定任务枚举)
+	};
+	
+	//返回领取奖励
+	struct TRspGetTaskRewards
+	{
+		0 require         int			              iRetCode;			//消息编号 
+		1 optional        TaskCurrentInfo             TaskInfo;         //任务状态
+	};
+};

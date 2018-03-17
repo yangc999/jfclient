@@ -1,0 +1,20 @@
+//
+//长链接消息体数据
+//
+
+module tip
+{	
+	//红点服务消息枚举
+	enum Eum_TipMsgID
+	{
+		E_TM_REFLASH_WEALTH = 0,       //刷新货币信息
+		E_TM_REFLASH_TASK=1,           //刷新任务执行状态
+	};
+	
+	//Tip红点服务协议封装
+	struct TTipMsg
+	{
+		0 require Eum_TipMsgID  eMsgID;    //红点服务消息枚举
+		1 optional string    sExtend;       //扩展参数
+	};
+};

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app/MyLuaGame.iml" filepath="$PROJECT_DIR$/app/MyLuaGame.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../cocos2d-x/plugin/plugins/alipay/proj.android-studio/libalipay.iml" filepath="$PROJECT_DIR$/../../cocos2d-x/plugin/plugins/alipay/proj.android-studio/libalipay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../cocos2d-x/cocos/platform/android/libcocos2dx/libcocos2dx.iml" filepath="$PROJECT_DIR$/../../cocos2d-x/cocos/platform/android/libcocos2dx/libcocos2dx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../cocos2d-x/plugin/plugins/weixin/proj.android-studio/libweixin.iml" filepath="$PROJECT_DIR$/../../cocos2d-x/plugin/plugins/weixin/proj.android-studio/libweixin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../cocos2d-x/plugin/protocols/proj.android-studio/pluginx.iml" filepath="$PROJECT_DIR$/../../cocos2d-x/plugin/protocols/proj.android-studio/pluginx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/proj.android-studio.iml" filepath="$PROJECT_DIR$/proj.android-studio.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,766 @@
+//
+//
+// 定义与终端通讯的消息结构
+//
+//
+
+module JFGameClientProto
+{
+
+	// 返回码
+	enum E_RETCODE
+	{
+		E_START							=-1,			// 开始
+		
+		// 通用 0 ... 99
+		E_COMMON_SUCCESS 		 		=0,				// 返回成功
+		E_COMMON_PKG_ERR				=1,				// TPackage参数为空
+		E_COMMON_NO_PLAYER				=2,				// 玩家不存在
+		E_COMMON_OTHER_ROOM				=3,			    // 玩家在其它房间
+		E_COMMON_WEALTH_NOTENOUGH		=4,				// 财富不足（金币不足）
+
+		// 进入房间 101 ... 199
+		E_ENTERROOM_MISTAKE				=101,			// roomkey输入错误
+		E_ENTERROOM_DISMISSED			=102,			// 房间已经解散
+		E_ENTERROOM_LACK_CARD			=103,			// 房卡不够
+		E_ENTERROOM_LOCKED				=104,			// 房间已经被锁
+		E_ENTERROOM_ANTI_CHEAT			=105,			// 防作弊房间
+		E_ENTERROOM_ROOMFULL			=106,			// 房间已满
+		
+		// 离开房间 201 ... 299
+		E_EXITROOM_GAMING				=201,			// 游戏中
+		
+		// 解散房间 301 ... 399
+		E_DISMISS_NOT_MASTER			=301,			// 不是房主无权解散
+		E_DISMISS_VOTE_FAIL				=302,			// 投票解散失败
+		E_DISMISS_DISMISSED				=303,			// 房间已经解散
+		
+		// 坐桌 401 ... 499
+		E_SITTABLE_ERR					=401,			// 坐桌失败
+		E_SITTABLE_CHAIR_UNAVAIL		=402,			// 分配的chair不可用
+		
+		// 站起 501 ... 599
+		E_STAND_GAMING					=501,			// 游戏中
+		
+		// 加入排队 601 ... 699
+		E_JOINQUEUE_TIEMOUT				=601,		    // 排队超时
+		
+		// 离开排队 701 ... 799
+		E_QUITQUEUE_GAMING				=701,			// 游戏中
+		
+		//比赛报名
+		E_JIONMATCH_PLAYERFULL          =801,            //比赛人数已经满
+		E_JOINMATCH_REGISTERED          =802,            //已经报名
+		E_JOINMATCH_EXIST_OTHERMATCH    =803,            //已经在其它比赛场
+
+		//比赛退赛
+		E_QUITMATCH_NOTEXIST            =901,            //比赛信息不存在
+		E_QUITMATCH_RISE                =902,            //已经晋级不能退赛
+		E_QUITMATCH_ERR					=903,			 //当前状态不允许退赛 
+		
+		E_END 							=2000,		    // 结束	
+	};
+
+	// 消息类型
+	enum MSGTYPE
+	{
+		MSGTYPE_REQUEST		= 0,			// 请求消息
+		MSGTYPE_RESPONSE	= 1,			// 响应消息
+		MSGTYPE_NOTIFY		= 2,			// 通知消息
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 消息头
+	struct TMsgHead
+	{
+		0 require short nMsgID;				// 消息ID
+		1 require MSGTYPE nMsgType;			// 消息类型
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////	
+
+	//用户标识
+	struct TUid
+	{
+		0 require	long   	 lUid;
+		1 optional   string  sToken;
+	};
+
+	// 通讯包头
+	struct TPackage
+	{
+		0 require 	int 					iVersion;	  		 	// 客户端版本
+		1 require 	TUid 					stUid;		   		 	// 用户标识
+		2 require	int						iGameID;	   			// 游戏ID
+		3 require 	string 					sRoomID;				// RoomID
+		4 require	int 					iRoomServerID;	   	 	// RoomServerID
+		5 require 	int 					iSequence;	   		 	// 序列号
+		6 require 	int 					iFlag;		   		 	// 标志位, 参数PKFLAG定义
+		7 require 	vector<TMsgHead> 		vecMsgHead;			 	// 消息头数据
+		8 require 	vector<vector<byte>> 	vecMsgData;			 	// 消息体数据
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 玩家状态定义
+	enum ENUM_PLAYER_STATE
+	{
+		PLAYER_NO_STATE			= 0,				// 没有状态，初始化赋值
+		PLAYER_ENTER_ROOM		= 1,				// 玩家进入RoomServer
+		PLAYER_SITTING			= 2,				// 坐在游戏桌,但游戏还没有开始
+		PLAYER_PLAY_GAME		= 3,				// 游戏进行中状态
+		PLAYER_OFFLINE			= 4,				// 玩家断线状态
+		PLAYER_WATCH_SITTING	= 5,				// 坐下旁观位置，等待游戏开始
+		PLAYER_WATCH_GAME		= 6,				// 坐在旁观位置，正在旁观游戏
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 桌子状态定义
+	enum ENUM_TABLE_STATE
+	{
+		TABLE_FREE				= 0,				// 空闲
+		TABLE_WAITE_GAME    	= 1,				// 游戏待开始-玩家已坐在桌子上，但游戏还没有开始
+		TABLE_INGAME			= 2,				// 游戏中
+		TABLE_LOCK				= 3,				// 锁定
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 聊天类型
+	enum Eum_CHAT_TYPE
+	{
+		E_TEXT     			= 1,			    // 文本聊天
+		E_EMOTICON			= 2,			    // 表情聊天
+		E_QUICK				= 3,				// 快捷语音聊天
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 房间解散原因
+	enum Eum_DISMISS_TYPE
+	{
+		//0.房间未解散 1.房主要求解散 2.投票解散 3.达到游戏局数 4.房间期限已到 5.服务器重启
+		DISMISS_PRIVATE_ROOM_MASTER = 1,		//房主解散(已开局)
+		DISMISS_PRIVATE_ROOM_ALL_AGREE = 2,		//投票解散
+		DISMISS_PRIVATE_ROOM_GAME_OVER = 3,		//游戏结束自动解散 
+		DISMISS_PRIVATE_ROOM_TIMEOUT = 4,		//到期自动解散 
+		DISMISS_PRIVATE_ROOM_REBOOT = 5,		//重启服务端
+		DISMISS_PRIVATE_ROOM_IDLE = 6			//闲置房间解散(未开局)
+	};
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 消息ID
+	enum Eum_MSGID
+	{
+
+		// 私人场,金币场 - 游戏消息ID		[Game MsgID - 1...100]
+		E_MSGID_GAME_SO_REQ 									= 1,				// 游戏消息请求 [C->S] so中实现
+		E_MSGID_GAME_SO_RESP 									= 2,				// 游戏消息应答 [S->C] 
+		E_MSGID_GAME_SO_NOTIFY									= 3,				// 游戏消息通知 [S->C] 
+
+		E_MSGID_OFFLINE_NOTIFY									= 96,				// 断线消息通知 [S->C]
+		E_MSGID_RECOME_NOTIFY									= 97,				// 重新进入通知 [S->C]
+		E_MSGID_GAMING_RESP										= 98,				// 已在其它场次 [S->C]
+		E_MSGID_LOGIN_REQ										= 99,				// 登录消息请求 [C->S]
+		E_MSGID_LOGIN_RESP										= 100,				// 登录消息应答 [S->C]
+
+
+		// 私人场-房卡模式消息ID		[Private MsgID - 101...199]
+		E_PRIVATE_MSGID_ENTER_ROOM_REQ 						    = 101,				// 进入房间请求 [C->S,Data:]
+		E_PRIVATE_MSGID_ENTER_ROOM_RESP						    = 102,				// 进入房间响应 [S->C,Data:]
+		E_PRIVATE_MSGID_ENTER_ROOM_NOTIFY					    = 103,    			// 进入房间通知 [S->C,Data:]
+		E_PRIVATE_MSGID_EXIT_ROOM_REQ						    = 104,				// 离开房间请求 [C->S]
+		E_PRIVATE_MSGID_EXIT_ROOM_RESP						    = 105,				// 离开房间响应 [S->C,Data:]
+		E_PRIVATE_MSGID_EXIT_ROOM_NOTIFY						= 106,				// 离开房间通知 [S->C,Data:]
+		E_PRIVATE_MSGID_SITDOWN_REQ								= 107,				// 坐下桌子请求 [C->S,Data:]
+		E_PRIVATE_MSGID_SITDOWN_RESP							= 108,				// 坐下桌子响应 [S->C,Data:]
+		E_PRIVATE_MSGID_SITDOWN_NOTIFY							= 109,				// 坐下桌子通知 [S->C,Data:]
+		E_PRIVATE_MSGID_EXIT_REQ								= 110,				// 桌子站起请求 [C->S]
+		E_PRIVATE_MSGID_EXIT_RESP								= 111,				// 桌子站起响应 [S->C,Data:]
+		E_PRIVATE_MSGID_EXIT_NOTIFY								= 112,				// 桌子站起通知 [S->C,Data:]
+		E_PRIVATE_MSGID_DISMISS_ROOM_REQ						= 113,				// 解散房间请求 [C->S,Data:]
+		E_PRIVATE_MSGID_VOTE_DISMISS_NOTIFY						= 114,				// 投票解散响应 [S->C,Data:]
+		E_PRIVATE_MSGID_VOTE_RESULT_REQ							= 115,				// 投票结果请求 [C->S,Data:]
+		E_PRIVATE_MSGID_VOTE_RESULT_NOTIFY						= 116,				// 广播投票结果 [S->C,Data:]]
+		E_PRIVATE_MSGID_DISMISS_ROOM_RESP						= 117,				// 解散房间响应 [S->C,Data:]
+		E_PRIVATE_MSGID_DISMISS_ROOM_NOTIFY						= 118,				// 解散房间通知 [S->C,Data:]
+		E_PRIVATE_MSGID_CHAT_TEXT_EMOTICON_REQ 					= 119,				// 文本与表情聊天请求 [C->S,Data:]
+		E_PRIVATE_MSGID_CHAT_TEXT_EMOTICON_RESP					= 120,				// 文本与表情聊天响应 [S->C,Data:]
+		E_PRIVATE_MSGID_CHAT_TEXT_EMOTICON_NOTIFY				= 121,				// 文本与表情聊天通知 [S->C,Data:]
+		E_PRIVATE_MSGID_CHAT_AUDIO_REQ							= 122,				// 语音聊天请求 [C->S,Data:]
+		E_PRIVATE_MSGID_CHAT_AUDIO_RESP							= 123,				// 语音聊天结果 [S->C,Data:]
+		E_PRIVATE_MSGID_CHAT_AUDIO_NOTIFY						= 124,				// 语言聊天通知 [S->C,Data:]
+		E_PRIVATE_MSGID_GPS_REQ									= 125,				// GPS请求 [C->S,Data:]
+		E_PRIVATE_MSGID_GPS_NOTIFY								= 126,				// GPS通知 [S->C,Data:]
+		E_PRIVATE_MSGID_MASTER_KICK_OUT_REQ						= 127,				// 房主踢出玩家请求 [C->S,Data:] 
+		E_PRIVATE_MSGID_MASTER_KICK_OUT_RESP					= 128,				// 房主踢出玩家响应 [S->C,Data:]
+		E_PRIVATE_MSGID_MASTER_KICK_OUT_NOTIFY					= 129,				// 房主踢出玩家通知 [S->C,Data:]
+		E_PRIVATE_MSGID_MASTER_CANCEL_kICK_OUT_REQ				= 130,				// 房主取消踢出玩家请求 [C->S,Data:] 
+		E_PRIVATE_MSGID_MASTER_CANCEL_kICK_OUT_RESP				= 131,				// 房主取消踢出玩家响应 [S->C,Data:]
+		E_PRIVATE_MSGID_MASTER_CANCEL_kICK_OUT_NOTIFY			= 132,				// 房主取消踢出玩家响应 [S->C,Data:]
+		E_PRIVATE_MSGID_LOCK_TABLE_REQ							= 133,				// 房主开关门请求 [C->S,Data:] 
+		E_PRIVATE_MSGID_LOCK_TABLE_RESP							= 134,		 		// 房主开关门结果 [S->C,Data:]
+		E_PRIVATE_MSGID_LOCK_TABLE_NOTIFY						= 135,				// 房主开关门通知 [S->C,Data:]
+
+
+		// 金币场-自由选桌模式消息ID	[FreeSitting MsgID - 201...299]
+		E_FREE_SITTING_MSGID_ENTER_ROOM_REQ						= 201,				// 进入房间请求 [C->S,Data:]
+		E_FREE_SITTING_MSGID_ENTER_ROOM_RESP					= 202,				// 进入房间响应 [S->C,Data:]
+		E_FREE_SITTING_MSGID_ENTER_ROOM_NOTIFY					= 203,				// 进入房间通知 [S->C,Data:]
+		E_FREE_SITTING_MSGID_SITDOWN_REQ						= 204,				// 坐下桌子请求 [C->S,Data:]
+		E_FREE_SITTING_MSGID_SITDOWN_RESP						= 205,				// 坐下桌子响应 [S->C,Data:]
+		E_FREE_SITTING_MSGID_SITDOWN_NOTIFY						= 206,				// 坐下桌子通知 [S->C,Data:]
+		E_FREE_SITTING_MSGID_EXIT_REQ							= 207,				// 桌子站起请求 [C->S]
+		E_FREE_SITTING_MSGID_EXIT_RESP							= 208,				// 桌子站起响应 [S->C,Data:]
+		E_FREE_SITTING_MSGID_EXIT_NOTIFY						= 209,				// 桌子站起通知 [S->C,Data:]
+		E_FREE_SITTING_MSGID_WATCH_SIT_REQ						= 210,				// 旁观坐桌请求 [C->S,Data:]
+		E_FREE_SITTING_MSGID_WATCH_SIT_RESP						= 211,				// 旁观坐桌响应 [S->C,Data:]
+		E_FREE_SITTING_MSGID_WATCH_SIT_NOTIFY					= 212,				// 旁观坐桌通知 [S->C,Data:]
+		E_FREE_SITTING_MSGID_WATCH_EXIT_REQ						= 213,				// 旁观站起请求 [C->S]
+		E_FREE_SITTING_MSGID_WATCH_EXIT_RESP					= 214,				// 旁观站起响应 [S->C,Data:]
+		E_FREE_SITTING_MSGID_WATCH_EXIT_NOTIFY					= 215,				// 旁观站起通知 [S->C,Data:]
+		E_FREE_SITTING_MSGID_CHAT_TEXT_EMOTICON_REQ 			= 216,				// 文本与表情聊天请求 [C->S,Data:]
+		E_FREE_SITTING_MSGID_CHAT_TEXT_EMOTICON_RESP			= 217,				// 文本与表情聊天响应 [S->C,Data:]
+		E_FREE_SITTING_MSGID_CHAT_TEXT_EMOTICON_NOTIFY			= 218,				// 文本与表情聊天通知 [S->C,Data:]
+		E_FREE_SITTING_MSGID_CHAT_AUDIO_REQ						= 219,				// 语音聊天请求 [C->S,Data:]
+		E_FREE_SITTING_MSGID_CHAT_AUDIO_RESP					= 220,				// 语音聊天结果 [S->C,Data:]
+		E_FREE_SITTING_MSGID_CHAT_AUDIO_NOTIFY					= 221,				// 语言聊天通知 [S->C,Data:]
+
+		// 金币场-快速开始模式消息ID	[QuickStart MsgID - 301...399]
+		E_QUICK_START_MSGID_JOIN_QUEUE_REQ                  	= 301,              // 加入排队请求 [C->S]
+        E_QUICK_START_MSGID_JOIN_QUEUE_RESP                 	= 302,              // 加入排队响应 [S->C,Data:]
+		E_QUICK_START_MSGID_JOIN_QUEUE_NOTIFY               	= 303,              // 加入排队通知 [S->C,Data:]
+        E_QUICK_START_MSGID_QUIT_QUEUE_REQ                  	= 304,              // 退出排队请求 [C->S]
+    	E_QUICK_START_MSGID_QUIT_QUEUE_RESP						= 305,              // 退出排队结果 [S->C,Data:]
+		E_QUICK_START_MSGID_QUIT_QUEUE_NOTIFY 					= 306,              // 退出排队通知 [S->C,Data:]
+		E_QUICK_START_MSGID_SITDOWN_REQ							= 307,				// 坐下桌子请求 [C->S,Data:]
+		E_QUICK_START_MSGID_SITDOWN_RESP						= 308,				// 坐下桌子响应 [S->C,Data:]
+		E_QUICK_START_MSGID_SITDOWN_NOTIFY						= 309,				// 坐下桌子通知 [S->C,Data:]
+		E_QUICK_START_MSGID_EXIT_REQ							= 310,				// 桌子站起请求 [C->S]
+		E_QUICK_START_MSGID_EXIT_RESP							= 311,				// 桌子站起响应 [S->C,Data:]
+		E_QUICK_START_MSGID_EXIT_NOTIFY							= 312,				// 桌子站起通知 [S->C,Data:]
+		E_QUICK_START_MSGID_WATCH_SIT_REQ						= 313,				// 旁观坐桌请求 [C->S,Data:]
+		E_QUICK_START_MSGID_WATCH_SIT_RESP						= 314,				// 旁观坐桌响应 [S->C,Data:]
+		E_QUICK_START_MSGID_WATCH_SIT_NOTIFY					= 315,				// 旁观坐桌通知 [S->C,Data:]
+		E_QUICK_START_MSGID_WATCH_EXIT_REQ						= 316,				// 旁观站起请求 [C->S]
+		E_QUICK_START_MSGID_WATCH_EXIT_RESP						= 317,				// 旁观站起响应 [S->C,Data:]
+		E_QUICK_START_MSGID_WATCH_EXIT_NOTIFY					= 318,				// 旁观站起通知 [S->C,Data:]
+		E_QUICK_START_MSGID_CHAT_TEXT_EMOTICON_REQ 				= 319,				// 文本与表情聊天请求 [C->S,Data:]
+		E_QUICK_START_MSGID_CHAT_TEXT_EMOTICON_RESP				= 320,				// 文本与表情聊天响应 [S->C,Data:]
+		E_QUICK_START_MSGID_CHAT_TEXT_EMOTICON_NOTIFY			= 321,				// 文本与表情聊天通知 [S->C,Data:]
+		E_QUICK_START_MSGID_CHAT_AUDIO_REQ						= 325,				// 语音聊天请求 [C->S,Data:]
+		E_QUICK_START_MSGID_CHAT_AUDIO_RESP						= 326,				// 语音聊天结果 [S->C,Data:]
+		E_QUICK_START_MSGID_CHAT_AUDIO_NOTIFY					= 327,				// 语言聊天通知 [S->C,Data:]
+
+		// 淘汰赛场...
+		E_KNOCKOUT_MSGID_JOIN_MATCH_REQ                         =401,				//报名比赛请求 [C->S,Data:]
+		E_KNOCKOUT_MSGID_JOIN_MATCH_RESP						=402,               //报名比赛响应 [S->C,Data:]
+		E_KNOCKOUT_MSGID_JOIN_MATCH_NOTIFY						=403,               //报名比赛通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_EXIT_MATCH_REQ							=404,               //退赛请求 [C->S,Data:]
+		E_KNOCKOUT_MSGID_EXIT_MATCH_RESP						=405,               //退赛响应 [S->C,Data:]
+		E_KNOCKOUT_MSGID_EXIT_MATCH_NOTIFY						=406,               //退赛通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_BEGIN_MATCH_REQ						=407,			    //比赛开始请求 [C->S,Data:]
+		E_KNOCKOUT_MSGID_BEGIN_MATCH_RESP						=408,               //比赛开始响应 [S->C,Data:]
+		E_KNOCKOUT_MSGID_BEGIN_MATCH_NOTIFY						=409,               //比赛开始通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_SITDOWN_REQ							=410,               //坐桌请求 [C->S,Data:]
+		E_KNOCKOUT_MSGID_SITDOWN_RESP							=411,               //坐桌响应 [S->C,Data:]
+		E_KNOCKOUT_MSGID_SITDOWN_NOTIFY							=412,               //坐桌通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_RANK_NOTIFY							=413,               //排名通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_RISE_NOTIFY						    =414,               //晋级通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_KNOCKOUT_NOTIFY						=415,               //淘汰通知 [S->C,Data:]
+		E_KNOCKOUT_MSGID_CHECK_MATCH_REQ                        =416,				//比赛检测请求 [C->S,Data:]
+		E_KNOCKOUT_MSGID_CHECK_MATCH_RESP						=417,               //比赛检测响应 [S->C,Data:]
+		
+	};
+
+////////////////////////////////////////////////Comm-Start////////////////////////////////////////////////////////////
+
+	// 玩家断线消息响应
+	struct TMsgRespOffline
+	{
+		0 require long lPlayerID;				// 玩家ID
+		1 require int iChairID;					// 桌子位置
+	};
+
+	// 玩家重新进入响应
+	struct TMsgRespRecome
+	{
+		0 require long lPlayerID;							// 玩家ID
+		1 require int iChairID;								// 桌子位置
+		3 optional long lVoteSponsorID;					 	// 投票解散发起者ID
+		4 optional map<long, bool> vVotePlayerMap;     		// 投票解散玩家map @param long 玩家ID，bool true-同意解散 false-拒绝解散
+	};
+
+	// 玩家已经其它场次或游戏
+	struct TMsgRespGaming
+	{
+		0 require string sRoomID;				// RoomID
+		1 require int iTableID;					// 桌子ID
+		2 require int iChairID;					// 桌子位置
+	};
+
+////////////////////////////////////////////////Comm-Start////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////PrivateRoom-Start/////////////////////////////////////////////////////
+	// 是否锁桌
+	enum Eum_LOCK_TABLE
+	{
+		E_NO_LOCK		= 0,					// 不锁桌
+		E_LOCKED		= 1,					// 锁桌
+	};
+
+	// 进入房间请求
+	struct TPMsgReqEnterRoom
+	{
+		0 require string sPrivateRoomKey;				// 房间密码
+	};
+
+	// 进入房间应答
+	struct TPMsgRespEnterRoom
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功 1-roomKey错误 2-房卡不足 3-人数已满 4-是防作弊房间 5-房间已锁
+		1 require string sPrivateRoomKey; 		 		// 房间暗号
+		2 require long lMasterID;			 			// 房主ID
+	};
+
+	// 离开房间应答
+	struct TPMsgRespExitRoom
+	{
+		0 require int iResultID;			   			// 返回结果: 0-成功 1-曾经已经离开
+		1 require long lPlayerID;					 	// 玩家ID
+		2 require int iChairID; 			 			// 所在桌子位置
+
+	};
+
+	// 玩家坐下请求
+	struct TPMsgReqSitDown
+	{
+		0 require bool bAutoSit;						// 是否自动坐桌
+		1 require int iChairID;			    			// 桌子位置 
+	};
+
+	// 玩家坐下应答
+	struct TPMsgRespSitDown
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功; 1-房间被锁 -1-其它原因
+		1 require long lPlayerID;					 	// 玩家ID
+		2 require ENUM_PLAYER_STATE ePlayerState;       // 玩家状态
+		3 require int iTableID;  				 		// 所在的桌子ID
+		4 require int iChairID; 			 			// 所在桌子位置
+		5 require string sNickName;						// 玩家昵称
+		6 require string sHeadID;						// 头像编号
+		7 require string sHeadStr;                      // 头像路径
+		8 require int iPlayerGender;					// 玩家性别 0-未知 1-男 2-女
+		9 require string sPlayerIP;						// 玩家IP 
+
+	};
+
+	// 玩家起来应答
+	struct TPMsgRespExit
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功 1-玩家正在游戏中 2-玩家不在房间 -1-其它原因
+		1 require ENUM_PLAYER_STATE ePlayerState;       // 玩家状态
+		2 require int iTableID;  				 		// 所在的桌子ID
+		3 require int iChairID; 			 			// 所在桌子位置
+		4 require int iReason;			         		// 站立原因: 0-玩家自主站立 1-游戏逻辑要求站立 2-被房主请出站立 3-房间解散站立；
+	};
+
+	// 解散房间请求
+	struct TPMsgReqDismissRoom
+	{
+		0 require Eum_DISMISS_TYPE eResson; 			// 解散原因
+
+	};
+	
+	// 投票解散响应-广播到桌子上所有用户
+	struct TPMsgRespVoteDismiss
+	{
+		0 require int iResultID;		 	   			 // 返回结果：0-成功 -1-其它失败
+	};
+
+	// 玩家投票结果请求-玩家同意解散或拒绝解散
+	struct TPMsgReqVoteResult
+	{						
+		0 require bool bVoteResult; 		 	   		 // 玩家投票结果 true-同意 false-拒绝
+	};
+
+	// 广播玩家投票统计结果
+	struct TPMsgRespVoteResult
+	{
+		0 require int iResultID;     					 // 返回结果：0-成功 -1-其它失败
+		1 require bool bAgreeDismiss;					 // 是否同意解散 true-同意 false-拒绝
+		2 require long lPlayerID;					     // 同意或拒绝的玩家ID
+	};
+
+	// 解散房间应答
+	struct TPMsgRespDismissRoom
+	{
+		0 require int iResultID;			    		// 返回结果：0-成功 1-不是房主无权限 2-桌子已曾解散 3-正在游戏中无法解散 4-投票人数少于一半 -1-其它原因
+	};
+
+	// 文本与表情聊天请求
+	struct TPMsgReqChat
+	{
+		0 require Eum_CHAT_TYPE eChatType;				// 聊天类型 1-文本聊天 2-表情聊天
+		1 require string sChatData;						// 聊天数据内容
+	};
+
+	// 文本与表情聊天响应
+	struct TPMsgRespChat
+	{
+		0 require int iResultID;						// 返回结果：0-成功
+		1 require Eum_CHAT_TYPE eChatType;				// 聊天类型 1-文本聊天 2-表情聊天
+		2 require string sChatData;						// 聊天数据内容
+		3 require int iChairID;							// 玩家所在桌子位置
+	};
+
+	// 语音聊天请求
+	struct TPMsgReqAudioChat
+	{
+		0 require string sChatData;						// 语音聊天内容
+		1 require int duration;							// 语音聊天时长
+	};
+
+	// 语音聊天响应
+	struct TPMsgRespAudioChat
+	{
+		0 require int iResultID;						// 返回结果：0-成功
+		1 require int iChairID;							// 玩家所在桌子位置
+		2 require string sChatData;						// 语音聊天内容
+		3 require int duration;							// 语音聊天时长
+	};
+
+	// GPS请求
+	struct TPMsgReqGPS
+	{
+		0 require int iLongitude;                // 经度
+		1 require int iLatitude;                 // 纬度
+	};
+
+	// GPS响应
+	struct TPMsgRespGPS
+	{
+		0 require int iResultID;				 // 返回结果：0-成功
+		1 require int iChairID;                  // 椅子ID
+		2 require int iLongitude;                // 经度
+		3 require int iLatitude;                 // 纬度
+	};
+
+	// 房主踢出玩家请求
+	struct TPMsgReqKickOut
+	{
+		0 require long lKickOutPlayerID;				// 被踢出的玩家ID
+		1 optional bool bforever;						// 是否永远踢出，玩家不能再次进入房间
+	};
+
+	// 房主踢出玩家应答
+	struct TPMsgRespKickOut
+	{
+		0 require int iResultID;			    		// 返回结果：0-踢出成功 1-不能踢自己 2-不是房主不能操作 3-要踢出的用户不在房间中 -1-其它原因
+		1 require int iTableID;  						// 所在的桌子id
+		2 require int iChairID; 						// 所在的座位id
+	};
+
+	// 房主取消踢出玩家请求
+	struct TPMsgReqCancleKickOut
+	{
+		0 require long lCanleKickOutPlayerID;			// 被踢出的玩家ID
+	};
+
+	// 房主取消踢出玩家应答
+	struct TPMsgRespCancleKickOut
+	{
+		0 require int iResultID;			    		// 返回结果：0-成功; 1-不取消自己 2-不是房主不能操作 3-不在房间中不能操作 4-玩家未曾被踢除 -1-其它原因
+		1 require int iTableID;  						// 所在的桌子id
+		2 require int iChairID; 						// 所在的座位id
+	};
+
+	// 房主锁桌门请求
+	struct TPMsgReqLockTable
+	{
+		0 require Eum_LOCK_TABLE eLocked;				// 是否锁桌
+	};
+
+	// 房主锁桌应答
+	struct TPMsgRespLockTable
+	{
+		0 require int iResultID;			    		// 返回结果：0-成功 1-不是房主不能操作 2-不在房间中不能操作 3-不能重复操作 -1-其它原因
+	};
+
+////////////////////////////////////////////////PrivateRoom-End///////////////////////////////////////////////////////
+
+////////////////////////////////////////////////FreeSitting-Start/////////////////////////////////////////////////////
+	// 玩家进入请求
+	struct TFSMsgReqEnterRoom
+	{
+		0 require int iTableID;			     			// 桌子ID
+	};
+	
+	// 玩家进入应答
+	struct TFSMsgRespEnterRoom
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功 1-桌子已满
+		1 require int iTableID;							// 桌子ID
+	};
+
+
+	// 玩家坐下请求
+	struct TFSMsgReqSitDown
+	{
+		0 require int iTableID;							// 玩家选择坐桌的桌子ID
+		1 require bool bAutoSit;					    // 是否自动坐桌，如果是自动坐桌则不需要chairID 
+		2 require int iChairID;							// 桌子所在位置
+	};
+
+	// 玩家坐下应答
+	struct TFSMsgRespSitDown
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功; 1-桌子ID不可用-1-其它原因
+		1 require long lPlayerID;					 	// 玩家ID
+		2 require ENUM_PLAYER_STATE ePlayerState;       // 玩家状态
+		3 require int iTableID;  				 		// 所在的桌子ID
+		4 require int iChairID; 			 			// 所在桌子位置
+		5 require string sNickName;						// 玩家昵称
+		6 require string sHeadID;						// 头像编号
+		7 require string sHeadStr;                      // 头像路径
+		8 require int iPlayerGender;					// 玩家性别 0-未知 1-男 2-女
+		9 require string sPlayerIP;						// 玩家IP 
+	};
+
+	// 玩家起来应答
+	struct TFSMsgRespExit
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功 1-玩家正在游戏中 2-玩家不在房间 -1-其它原因
+		1 require ENUM_PLAYER_STATE ePlayerState;       // 玩家状态
+		2 require int iTableID;  				 		// 所在的桌子ID
+		3 require int iChairID; 			 			// 所在桌子位置
+		4 require int iReason;			         		// 站立原因: 0-玩家自主站立 1-游戏逻辑要求站立 2-被房主请出站立 3-房间解散站立；
+	};
+
+	// 文本与语言聊天请求
+	struct TFSMsgReqChat
+	{
+		0 require Eum_CHAT_TYPE eChatType;				// 聊天类型 0-文本聊天 1-表情聊天
+		1 require string sChatData;						// 聊天数据内容
+	};
+
+	// 文本与表情聊天响应
+	struct TFSMsgRespChat
+	{
+		0 require int iResultID;						// 返回结果：0-成功 1-玩家不在座位上 -1-其它原因
+		1 require long lPlayerID;						// 玩家ID
+		2 require Eum_CHAT_TYPE eChatType;				// 聊天类型 0-文本聊天 1-表情聊天
+		3 require string sChatData;					    // 聊天数据内容
+		4 require int iChairID;							// 玩家所在桌子位置
+	};
+
+	// 语言聊天请求
+	struct TFSMsgReqAudioChat
+	{
+		0 require string sChatData;						// 聊天数据内容
+		1 require int duration;							// 语音聊天时长
+	};
+
+	// 语言聊天响应
+	struct TFSMsgRespAudioChat
+	{
+		0 require int iResultID;						// 返回结果：0-成功
+		1 require int iChairID;							// 玩家所在桌子位置
+		2 require string sChatData;						// 语音聊天内容
+		3 require int duration;							// 语音聊天时长
+	};
+////////////////////////////////////////////////FreeSitting-End///////////////////////////////////////////////////////
+
+////////////////////////////////////////////////QuickStart-Start//////////////////////////////////////////////////////
+	// 加入排队机应答
+	struct TQSMsgRespJoinQueue
+	{
+		0 require int iResultID;			    		// 返回结果 0-成功 1-玩家已在排队机，2-玩家断线 3-玩家不在线 -1-其它原因
+	};
+
+	// 退出排队机应答
+	struct TQSMsgRespQuitQueue
+	{
+		0 require int iResultID;			   			 // 返回结果 0-成功，-1-其它原因
+	};
+
+	// 玩家坐下请求
+	struct TQSMsgReqSitDown
+	{
+		0 require bool bAutoSit;						// 是否自动坐桌
+		1 require int iChairID;			    			// 桌子位置
+	};	
+
+	// 玩家坐下应答
+	struct TQSMsgRespSitDown
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功; 1-桌子ID不可用-1-其它原因
+		1 require long lPlayerID;					 	// 玩家ID
+		2 require ENUM_PLAYER_STATE ePlayerState;       // 玩家状态
+		3 require int iTableID;  				 		// 所在的桌子ID
+		4 require int iChairID; 			 			// 所在桌子位置
+		5 require string sNickName;						// 玩家昵称
+		6 require string sHeadID;						// 头像编号
+		7 require string sHeadStr;                      // 头像路径
+		8 require int iPlayerGender;					// 玩家性别 0-未知 1-男 2-女
+		9 require string sPlayerIP;						// 玩家IP 
+	};
+
+	// 玩家起来应答
+	struct TQSMsgRespExit
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功 1-玩家正在游戏中 2-玩家不在房间 -1-其它原因
+		1 require ENUM_PLAYER_STATE ePlayerState;       // 玩家状态
+		2 require int iTableID;  				 		// 所在的桌子ID
+		3 require int iChairID; 			 			// 所在桌子位置
+		4 require int iReason;			         		// 站立原因: 0-玩家自主站立 1-游戏逻辑要求站立 2-被房主请出站立 3-房间解散站立；
+	};
+
+	// 文本与语言聊天请求
+	struct TQSMsgReqChat
+	{
+		0 require Eum_CHAT_TYPE eChatType;				// 聊天类型 0-文本聊天 1-表情聊天
+		1 require string sChatData;						// 聊天数据内容
+	};
+
+	// 文本与表情聊天响应
+	struct TQSMsgRespChat
+	{
+		0 require int iResultID;						// 返回结果：0-成功 1-玩家不在座位上 -1-其它原因
+		1 require long lPlayerID;						// 玩家ID
+		2 require Eum_CHAT_TYPE eChatType;				// 聊天类型 0-文本聊天 1-表情聊天
+		3 require string sChatData;						// 聊天数据内容
+		4 require int iChairID;							// 玩家所在桌子位置
+	};
+
+	// 语言聊天请求
+	struct TQSMsgReqAudioChat
+	{
+		0 require string sChatData;						// 聊天数据内容
+		1 require int duration;							// 语音聊天时长
+	};
+
+	// 语言聊天响应
+	struct TQSMsgRespAudioChat
+	{
+		0 require int iResultID;						// 返回结果：0-成功
+		1 require int iChairID;							// 玩家所在桌子位置
+		2 require string sChatData;						// 语音聊天内容
+		3 require int duration;							// 语音聊天时长
+	};
+////////////////////////////////////////////////QuickStart-End////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////KnockOut-Start////////////////////////////////////////////////////////
+
+	// 比赛玩家状态定义
+	enum ENUM_MATCHPLAYER_STATE
+	{
+		MATCHPLAYER_NO_STATE,				// 没有状态，初始化赋值
+		MATCHPLAYER_JOINMATCH,				// 玩家报名等待开赛状态
+		MATCHPLAYER_SIT,                    // 坐下状态               
+		MATCHPLAYER_PLAY_GAME,				// 比赛进行中游戏中状态
+		MATCHPLAYER_WAIT_NEXTROUND,         // 等待下一轮状态
+		MATCHPLAYER_OFFLINE,				// 玩家断线状态
+	};
+
+	// 比赛状态
+	enum ENUM_MATCH_STATE
+	{
+		MATCH_FREE,				            // 空闲
+		MATCH_JOINMATCH,				    // 比赛报名状态
+		MATCH_PALYEING,				        // 比赛进行中
+	};
+
+	//报名参赛
+	struct TKOMsgReqJoinMatch
+	{
+		0 require int    iMatchID;                      //比赛ID
+	};
+
+    //报名参赛响应
+	struct TKOMsgRespJoinMatch
+	{
+		0 require int 	 iResultID;                     //返回结果: 0-成功 1-未报名 2-比赛正在进行
+		1 require int 	 iMatchID;						//比赛ID
+	};
+
+	//玩家退赛请求
+	struct TKOMsgReqExitMatch
+	{              
+		0 require int iMatchID;                         //比赛ID
+	};
+
+	//玩家退赛响应
+	struct TKOMsgRespExitMatch
+	{
+		0 require int iResultID;                        //返回结果 0-成功 1-比赛不存在 2-已经晋级不能退赛
+		1 require int iMatchID;   
+	};
+
+	// 玩家坐下请求
+	struct TKOMsgReqSitDown
+	{
+		0 require bool bAutoSit;						// 是否自动坐桌
+		1 require int iChairID;			    			// 桌子位置
+	};	
+
+	// 玩家坐下应答
+	struct TKOMsgRespSitDown
+	{
+		0 require int iResultID;			     		// 返回结果: 0-成功; 1-桌子ID不可用-1-其它原因
+		1 require long lPlayerID;					 	// 玩家ID
+		2 require ENUM_MATCHPLAYER_STATE ePlayerState;  // 玩家状态
+		3 require int iTableID;  				 		// 所在的桌子ID
+		4 require int iChairID; 			 			// 所在桌子位置
+		5 require string sNickName;						// 玩家昵称
+		6 require string sHeadID;						// 头像编号
+		7 require string sHeadStr;                      // 头像路径
+		8 require int iPlayerGender;					// 玩家性别 0-未知 1-男 2-女
+		9 require string sPlayerIP;						// 玩家IP 
+	};
+
+	//排名通知
+	struct TKOMsgRespRank
+	{
+		0 require int iRanking;                          //当前名次
+		1 require int iPlayerNum;                        //当前比赛玩家数
+		2 require int iTablePlaying;                     //该比赛正在进行的桌数
+		3 require int iBeginPlayers;					 //比赛开赛人数
+		4 require ENUM_MATCHPLAYER_STATE ePlayerState;   //玩家状态
+	};
+
+	//晋级通知
+	struct TKOMsgRespRise
+	{
+		0 require int iRanking;                          //当前名次
+		1 require int iPlayerNum;                        //当前比赛玩家数
+		2 require int iTablePlaying;                     //该比赛正在进行的桌数
+		3 require int iBeginPlayers;					 //比赛开赛人数
+		4 require ENUM_MATCHPLAYER_STATE ePlayerState;   //玩家状态
+	};
+
+	//淘汰通知
+	struct TKOMsgRespKnockOut
+	{	
+		0 require int iMatchID;							  //比赛ID
+		1 require int iRanking;                           //排名
+		2 require int iKnockOutTime;					  //淘汰时间
+		3 require string sMatchNo;						  //matchNo
+	};
+
+	 //比赛检测检验请求
+	struct TKOMsgReqCheckMatch
+	{
+	  	0 require int 	 gameId;
+	};
+    //比赛检测检验响应
+	struct TKOMsgRespCheckMatch
+	{
+		0 require int 	 iResultID;                     //返回结果: 0-成功 
+		1 require int 	 iMatchID;						//比赛ID 如果玩家已经参赛返回比赛ID，没有参赛返回0
+	};
+////////////////////////////////////////////////KnockOut-End////////////////////////////////////////////////////////
+	
+};

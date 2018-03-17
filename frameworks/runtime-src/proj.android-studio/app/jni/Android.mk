@@ -1,0 +1,40 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := cocos2dlua_shared
+
+LOCAL_MODULE_FILENAME := libcocos2dlua
+
+PLUGIN_INCLUDE_PATH := $(LOCAL_PATH)/../../../../cocos2d-x/plugin/protocols/include
+PLUGIN_ANDROID_PATH := $(LOCAL_PATH)/../../../../cocos2d-x/plugin/protocols/platform/android
+LUA_PLUGIN_INCLUDE_PATH := $(LOCAL_PATH)/../../../../cocos2d-x/plugin/luabindings
+
+LOCAL_SRC_FILES := \
+../../../Classes/AppDelegate.cpp \
+hellolua/main.cpp
+
+LOCAL_C_INCLUDES := \
+$(LOCAL_PATH)/../../../Classes \
+$(PLUGIN_INCLUDE_PATH) \
+$(PLUGIN_ANDROID_PATH) \
+$(LUA_PLUGIN_INCLUDE_PATH)
+
+# _COCOS_HEADER_ANDROID_BEGIN
+# _COCOS_HEADER_ANDROID_END
+
+LOCAL_STATIC_LIBRARIES := cocos2d_lua_static
+
+# _COCOS_LIB_ANDROID_BEGIN
+# _COCOS_LIB_ANDROID_END
+
+LOCAL_WHOLE_STATIC_LIBRARIES := lua_pluginx_static
+
+include $(BUILD_SHARED_LIBRARY)
+
+$(call import-module,scripting/lua-bindings/proj.android)
+$(call import-module,plugin/luabindings)
+
+
+# _COCOS_LIB_IMPORT_ANDROID_BEGIN
+# _COCOS_LIB_IMPORT_ANDROID_END

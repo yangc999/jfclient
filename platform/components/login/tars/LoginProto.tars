@@ -1,0 +1,73 @@
+module JFGame
+{	
+	enum Eum_Action
+	{
+		E_LOGOUT=0,		   //账号登出
+		E_USER_REG=1,	   //账号注册（保留）
+		E_USER=2,          //账号登录
+		E_GUEST=3,         //游客登录
+		E_WEIXIN=4,        //微信登录
+	};
+
+	struct TLoginMsg
+	{
+		0 require 	Eum_Action	 eAct;				//动作指令
+		1 require 	vector<byte>  vecData;  		//请求数据			
+	};
+	
+	//登录Token验证请求
+	struct TReqLoginToken
+	{
+		0 require  long	   		lUid;	   			//用户ID	
+		1 require  string  		sToken;     		//登录Token值
+	};
+	
+	//登录Token验证返回
+	struct TRspLoginToken
+	{
+		0 require   int    		iRetCode;  			//验证返回结果 0.验证成功 其他为失败
+	};
+	
+	//登出请求数据
+	struct TReqLogout
+	{
+		0 require   long		lUid;				//用户ID
+	};
+	
+	//登出相应数据
+	struct TRspLogout
+	{
+		0 require   int    		iRetCode;  			//登出结果 0.成功  其他为失败
+	};
+	
+	//游客登录请求数据
+	struct TReqGuestLogin
+	{	
+		0 require 	string		sDeviceNo;			//设备号
+	};
+	
+	//游客登录返回数据
+	struct TRspGuestLogin
+	{	
+		0 require 	int			iRetCode;			//消息编号
+		1 optional  long		lUid;				//用户ID
+		2 optional	string		sToken;			    //登录Token值
+	};
+	
+	//微信登录请求数据
+	struct TReqWeixinLogin
+	{	
+		0 require 	string		sDeviceNo;			//设备号
+		1 require	int		    iCache;				//登录形式 0.普通登录 1.缓存登录
+		2 optional  string		sCode;				//微信登录Code值	
+		3 optional  long		lUid;				//缓存用户ID	,缓存登录需要
+	};
+	
+	//微信登录返回数据
+	struct TRspWeixinLogin
+	{
+		0 require 	int			iRetCode;			//消息编号
+		1 optional  long		lUid;				//用户ID
+		2 optional	string		sToken;			    //登录Token值
+	};
+};

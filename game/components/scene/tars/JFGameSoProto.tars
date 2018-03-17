@@ -1,0 +1,10 @@
+module JFGameSoProto
+{
+	struct TSoMsg
+	{
+		0 require short nVer;	//版本
+		1 require byte  nCmd;	// 命令字
+		2 optional vector<byte> vecMsgData; //消息数据		
+	};
+	
+};

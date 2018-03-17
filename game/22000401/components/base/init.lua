@@ -1,0 +1,12 @@
+
+cc.exports.ShowMainCommand = import(".command.ShowMainCommand")
+cc.exports.RecvMsgCommand = import(".command.RecvMsgCommand")
+cc.exports.RequestPrepareCommand = import(".command.RequestPrepareCommand")
+cc.exports.StartCurSameCardCommand = import(".command.StartCurSameCardCommand")
+cc.exports.StartMakeNTCommand = import(".command.StartMakeNTCommand")
+cc.exports.StartOutCardCommand = import(".command.StartOutCardCommand")
+cc.exports.StartGetTokenCommand = import(".command.StartGetTokenCommand")
+cc.exports.StartActNotifyCommand = import(".command.StartActNotifyCommand")
+cc.exports.StartActInfoCommand = import(".command.StartActInfoCommand")
+cc.exports.StartAutoInfoCommand = import(".command.StartAutoInfoCommand")
+cc.exports.StartGameStationCommand = import(".command.StartGameStationCommand")

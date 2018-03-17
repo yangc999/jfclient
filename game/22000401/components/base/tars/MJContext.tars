@@ -1,0 +1,493 @@
+/**
+ * 说明：
+ * 词汇：Mahjong(MJ) 麻将游戏 Tile麻将牌  Shuffle洗(牌) Deal发牌 Draw摸牌 DiscardTile出牌  Chi、Peng、Gang、Hued吃碰杠胡 SelfHued自摸胡  
+ * 
+ * 概念排序：从上到下的数据，分别为局部到整体、从微观到宏观、从具象到抽象;
+ * 修改要求:局部可混杂、整体有痕迹。
+ */
+
+module MJContext
+{
+	//游戏可能的状态(即下一步需要进行的动作)
+	enum E_MJ_GAMESTATUS
+	{
+		BEGIN_MJ_GAMESTATUS = 10,
+		GS_GameBegin		= 11, //本局游戏开始
+		GS_RoundBegin		= 12, //本轮游戏开始
+		GS_BuildTileWall    = 13, //建立牌墙
+		GS_ChoseZhuang		= 14, //定庄
+		GS_Wait4JiaPiao		= 15, //等待玩家加飘		   	//移交重置权 到timer 到所有玩家action
+ 		GS_DealTile			= 16, //发牌
+		GS_DrawTile			= 17, //帮玩家摸牌			 //或移交重置权 到TokenOwner action
+		GS_Wait4DiscardTile	= 18, //等待玩家出牌         //移交重置权 到timer 到TokenOwner action
+		GS_Wait4CPGHG	 	= 19, //等待其他玩家吃碰杠胡过  //移交重置权 到timer 到可吃碰杠胡的玩家action
+		GS_PlayerHued		= 20, //胡牌
+		GS_PlayerCatchBird	= 21, //抓鸟
+		GS_whenWaitChaoshi	= 22, //等待超时状态	 只有金币场有
+		GS_Wait1CPGHG		= 23, //等待一个人吃碰杠胡过状态	 只有金币场有
+		GS_RoundFinish		= 24, //本轮结束
+		GS_GameFinish		= 25, //本局游戏结束
+		END_MJ_GAMESTATUS	= 26, //状态结束
+	};
+	enum E_MJTILE
+	{
+		TILE_NULL     = 254,
+		TILE_WAN		=0,
+		TILE_1Wan		=1, //万 
+		TILE_2Wan		, 
+		TILE_3Wan		, 
+		TILE_4Wan		, 
+		TILE_5Wan		, 
+		TILE_6Wan		, 
+		TILE_7Wan		, 
+		TILE_8Wan		, 
+		TILE_9Wan		, 
+		TILE_TIAO	   =10,
+		TILE_1Tiao	   =11, //条
+		TILE_2Tiao	   ,
+		TILE_3Tiao	   ,
+		TILE_4Tiao	   ,
+		TILE_5Tiao	   ,
+		TILE_6Tiao	   ,
+		TILE_7Tiao	   ,
+		TILE_8Tiao	   ,
+		TILE_9Tiao	   ,
+		TILE_TONG	   =20,//筒
+		TILE_1Tong	   ,
+		TILE_2Tong	   ,
+		TILE_3Tong	   ,
+		TILE_4Tong	   ,
+		TILE_5Tong	   ,
+		TILE_6Tong	   ,
+		TILE_7Tong	   ,
+		TILE_8Tong	   ,
+		TILE_9Tong	   ,
+		TILE_WIND	   ,
+		TILE_EWind     =31,//风
+		TILE_SWind     ,  
+		TILE_WWind     ,  
+		TILE_NWind	   ,  
+		TILE_RedZhong  ,  
+		TILE_FaCai     ,  
+		TILE_WhiteBan  ,  
+		TILE_HUA	   ,
+		TILE_Mei	   =41,//花  //老版的"ZI"
+		TILE_Lan	   ,
+		TILE_Zhu	   ,
+		TILE_Ju		   ,  
+		TILE_Chun	   ,
+		TILE_Xia       ,
+		TILE_Qiu       ,
+		TILE_Dong      ,
+		END_TILE,
+	};
+	enum E_PLAYER_STAT
+	{
+		BEGIN_PLAYER_STAT = 0x01,
+		UserStat_Wait4Token_E	,//等着令牌
+		UserStat_ThinkDisCard_E	,//考虑出牌
+		UserStat_ThinkCPGHG_E	,//考虑吃碰杠胡 
+		END_PLAYER_STAT
+	};
+	enum E_ROOM_MODE
+	{
+		PRIVATE_ROOM = 0,	//私人房
+		GOLD_ROOM = 1,		//金币房
+		MATCH_ROOM = 2,		//比赛场
+	};
+	enum E_PLAYER_ACT
+	{
+
+		BEGIN_PLAYER_ACT   = 0x00,	//UNKNOWN
+		Act_DrawedTile_E  ,//摸到牌
+		Act_Discarded_E   ,//打出牌 
+		ACT_NORMAL_END	  ,
+
+		ACT_NOTIFY_BEGIN   = 0x0e, //需通知的动作
+		Act_Pass_E					,//过 
+		Act_Chi_E	       = 0x10,	//吃 
+		chi_Tou_E				,	//吃头
+		chi_Zhong_E				,	//吃中
+		chi_Wei_E				,	//吃尾
+		/*碰牌*/
+		Act_Peng_E			= 0x20,	//碰
+		/*杠牌*/
+		Act_Gang_E			= 0x30,	//杠
+		gang_MingGang_E		= 0x31,	//明杠
+		gang_AnGang_E		= 0x32,	//暗杠
+		gang_BuGang_E		= 0x33,	//补杠  //van:自摸杠明杠
+		/*胡牌*/
+		Act_Hued_E		= 0x40, //胡
+/*		hued_YiTiaoLong_E	= 0x41,	//一条龙
+		hued_PengPeng_E		= 0x42,	//对对碰
+		hued_7Dui_E			= 0x43,	//七对
+		hued_Long7Dui_E     = 0x44,	//龙七对
+		hued_QingYiSe_E		= 0x45,	//清一色
+		hued_QingDadui_E	= 0x46,	//清一色的碰碰胡，清大对
+		hued_Qing7Dui_E		= 0x47,	//清一色七小队
+		hued_QinglongBei_E	= 0x48,	//清一色七大队
+		hued_DanDiao_E		= 0x49,	//单吊
+		hued_QingDanDiao_E	= 0x4a, //清一色单吊
+*/		/*胡牌*/
+		hued_TianHu_E		= 0x50,  //天胡
+		hued_DiHu_E			= 0x60,  //地胡
+		hued_QiangGang_E	= 0x70,  //抢杠胡
+		hued_GangKai_E		= 0x80,	 //杠上开花
+		hued_GangChong_E	= 0x90,  //杠后放炮 杠冲
+		ACT_NOTIFY_END,
+		END_PLAYER_ACT
+	};
+	//玩家吃碰杠牌
+	struct ChiPengGang
+	{
+		0 require int			index;		//拦牌索引
+		1 require E_PLAYER_ACT	iType;		//拦牌类型
+		2 require vector<int>	vTiles;		//拦牌数组
+		3 optional bool			bAnGang;	//是否暗杠
+		4 require int           iFromCID = -1;	//吃碰杠谁的牌
+	};
+	//玩家手中麻将数据
+	struct HandTiles
+	{
+		0 require   vector<int>			 vAllTiles;		//玩家全部手牌
+		1 optional  vector<ChiPengGang>  vChiPengGang;		//吃碰杠牌
+		2 optional  vector<int>			 vCanDiscardTile;		//听牌时仅能出的牌,一般为空,听牌时以此为准
+	};
+
+	//玩家动作节点
+	struct MJActNode
+	{
+		0 optional int			iFromCID = -1;
+		1 require int			iActCID;
+		2 require E_PLAYER_ACT  eAction;
+		3 optional int			eActTile;
+	};
+	//玩家得分数结构体
+	struct MJPlayerScores
+	{
+		0 require int iGangScore;
+		1 require int iHuedScore;
+		2 require int iPiaoScore;
+		3 require int iNiaoScore;
+		4 require bool iDianPao;//是否点炮
+		5 require int iSumScore;//总分
+	};
+	//玩家结算数据结构体
+	struct MJResult
+	{
+		0 require int iZimo;			//自摸次数
+		1 require int iDianpao;		//点炮次数
+		2 require int iNiao;			//中鸟次数
+		3 require int iMingGang;		//明杠次数
+		4 require int iAnGang;			//暗杠次数
+	};
+	//某玩家(椅子号)数据
+	struct MJChair
+	{
+		1 require long					iPlayerID;		//玩家ID
+		2 require bool					bIsAutoAct;		//是否托管
+		3 require int					nJiaPiaoNum;	//加飘数量
+		4 optional vector<MJPlayerScores> vRoundScores;	//玩家每轮得分
+		5 require HandTiles				sHandTiles;		//玩家手牌
+		6 require  vector<int>			vDisCarded;		//玩家已出的牌
+		7 optional vector<MJActNode>	vValidAct;		//玩家当前动作的通知信息
+		8 optional MJActNode			sActHigher;		//玩家拥有的最高优先级动作
+		9 optional MJActNode			sActChosen;		//用户选择的动作
+		10 optional bool				bIsLouHu;		//漏胡状态
+		11 require 	bool				bIsReady;		//玩家准备状态
+		12 optional MJResult			sMJResult;		//玩家总结算 	
+		13 optional bool				bOffline;		//玩家是否断线	
+		14 optional int 				iOvertimecnts;	//超时次数		
+		15 optional vector<int>			vDealTiles;	    //发牌数组	
+		16 optional int  				testDrawTile;	//配 抓牌
+
+	};
+	//玩法配置(MJLogic与之相关)
+	/*
+	enum E_RULE_MUTEX
+	{
+		HUED_DianPaoHuNoRedZhong = 0,		//无红中点炮胡(可抢杠胡)
+		HUED_SelfDraw			 = 1		//自摸胡
+	};
+	*/
+	struct MJRulesConfig
+	{
+		1 require int			nLeastRoundNum;		//至少要打的圈数 
+
+		2 require bool			bMustSelfDrawHued;  //必须自摸胡
+		3 require bool			bLootGang4Hued;		//开抢杠胡
+		4 require bool			bZhuangXianScore; //1.庄闲可算番
+		5 require bool			bCanHuedBy7Pair;     //2.胡七对
+		6 require bool			bCanRedZhongAsLaizi; //3.可以 红中作赖子
+		7 require bool			bEnableJiaPiao;		 //4.加飘
+		8 require bool			bIsYiPaoDuoXiang;    //5.一炮多响
+		9 require bool			bMust258Pair;		 //6.258将对要求
+		10 require int			iZhuaNiaoNum;		//抓几只鸟//10为飞鸟
+	};
+	//其他配置(玩法以外的所有其他配置)
+	struct MJOtherConfig
+	{
+		//本地配置
+		1 require int nDefaultRoundNum;//deprecated:默认轮数
+		2 require int nMinPlayerNum;//默认开局至少加入的玩家数
+		3 require int nMaxPlayerNum;//默认开局最多加入的玩家数
+		5 require int iLoseLimitScore;//输分极限
+		6 require int iEscapePunish;//逃跑罚分
+		7 require int nDefaultTimeout;//等待同意的时间(秒)
+		8 require int nDisCardTimeout;//出牌思考时间 
+		9 require int nActTimeout;//动作思考时间,如碰杠胡(秒)
+		10 require int nNextRoundTimeout;//下一回合等待时间,结算框上的时间显示(秒)
+		11 require bool bAutoActWhenNetBroked;//玩家断线后，服务器是否托管出牌默认为0,1为托管出牌
+		12 require bool bAllowJoinWhenRuning;//进行中是否允许加入
+		13 require bool bBeginWithRoomOwerAgree;//必须房主同意才能开始
+		14 require int  nLogMode;//日志级别
+
+		15 require bool	bZhuaNiaoWithHuedor; //用胡牌者开始抓鸟  false则从庄家开始抓
+		16 require bool	bCalcNiaoWithPlus; //用加法计算鸟分  false则用乘法计算鸟分
+		//数据库的配置
+		17 require int nScoreRising;       //金币底注
+		18 require int nScoreMultiplying;  //金币倍率 
+	};
+
+
+
+	//*********************麻将上下文数据************************/
+	struct MJTableContext
+	{
+		0 require long				 mj_iRoomOwnPID;    //房主PlayerID
+		1 require int				 mj_nTokenOwnCID;	//拥有令牌的椅子号
+		2 require int				 mj_nBankerCID;     //庄家CID
+		3 require int				 mj_nHuederCID;     //胡牌的玩家CID
+		4 require int				 mj_iNowRound;		//当前第几轮
+		5 require E_MJ_GAMESTATUS    mj_eNowStat;		//当前状态
+		6 require int		      	 mj_iLastTilepos;	//上一个出牌玩家所出牌的位置
+		7 require int 				 mj_iLastOuterCID;	//上一个出牌玩家
+		8 require vector<int>	     mj_vTilesWall;		//牌城 
+		9 require vector<int>	     mj_vViewerUIDs;	//旁观者数组 
+		10 require map<long,int>		 mj_mPID_CID;       //PlayerID_ChairID映射
+		11 require map<int,MJChair>	 mj_mCID_MJChair;	//四个玩家数据(椅子号)
+		12 require int				 mj_iTimerID;		//定时器编号，0为无定时器，
+		13 require vector<MJActNode> mj_vActs;			//动作记录 
+		14 require MJRulesConfig     mj_sRulesConfig;	//麻将玩法配置
+		15 require MJOtherConfig     mj_sOtherConfig;	//其他配置
+		16 require E_ROOM_MODE		 mj_roommode;		//房间模式
+	};
+	/************************************************************/
+};
+
+module MJProto
+{
+	const int iProtoVersion = 1001;//协议版本
+
+	enum  E_CMD_TYPE //消息命令字枚举
+	{
+		TMJ_CMD_BEGIN 								= 10,
+			/*任意时间均可能交互*/
+		EMJ_actionSetAutoAct_E						= 11,	//玩家设置托管
+		EMJ_notifySetAutoActSuccess_E				= 12,	//设置托管成功
+		EMJ_actionGetStatData_E						= 13,	//拉取局面请求
+		TMJ_notifyPushStatData_E					= 14,	//推送局面数据
+ 
+		TMJ_actionPlayerReady_E  					= 15, 	//玩家准备好的消息		 [双 向]
+		TMJ_notifyGameBegin_E						= 16,   //通知玩家游戏可以开始	[s -> c]
+		TMJ_notifyChoseZhuang_E						= 17,	//通知各玩家庄家号		  [s -> c]
+		EMJ_notifyJiaPiao_E							= 18,	//通知用户加飘			[s -> c]
+		TMJ_actionJiaPiao_E							= 19,	//用户加飘				  [双 向]
+		
+			/*进行中*/
+		TMJ_notifyDealedTile_E						= 20,   //通知各玩家 //发牌 		[s -> c]
+		TMJ_notifyDrawedTile_E						= 21,	//通知某玩家  抓到牌 		[s -> c]
+		EMJ_notifyWait4Discard_E						= 22,	//通知所有人  等待出牌 		[s -> c]
+		TMJ_actionDoDiscard_E						= 23,	//某玩家 出牌 			[双向]
+		TMJ_notifyCanCPGHG_E						= 24,	//通知某玩家 可吃碰杠胡	[s -> c]
+		TMJ_actionChoseCPGHG_E						= 25,	//7.某玩家     选择吃碰杠胡 [c -> s]
+		TMJ_notifyActivedCPGHG_E					= 26,	//8.通知所有人 执行了有效的吃碰杠胡  令牌移交 或胡牌 [s -> c]
+		TMJ_notifyZhuaNiao_E 						= 27,   //通知所有人抓鸟的情况    [s -> c]
+			/*结束后*/
+		TMJ_notifyRoundFinish_E						= 28, //牌局结束 通知所有人 本轮分数
+		TMJ_notifyGameFinish_E						= 29, //通知所有人 各玩家汇总分数
+
+			/*金币场*/
+		TMJ_notifyPlayerAuto_E						= 30,	//通知所有人某玩家托管或者取消托管   [s -> c]
+		TMJ_actionPlayerAuto_E						= 31,	//处理某玩家托管或者取消托管		[c -> s]
+
+			/*配牌器*/
+		TMJ_Test_E									= 32,	//处理某玩家配牌消息  [双向]
+		
+
+		EMJ_actionQuitGame_E,     //玩家中途退出
+		TMJ_CMD_END,
+			/*debug消息*/
+		TDebug_CMD_BEGIN,
+		EDebug_actionGetMJTableContext_E,//获取完整上下文
+		TDebug_notifyPushMJTableContext_E,//推送完整上下文
+		TDebug_CMD_END
+	};
+	struct TMJ_notifyPushStatData//推送需要的局面数据**
+	{
+		0 require MJContext::MJChair			sSelfDatas;	//自己的状态
+		1 require int							iBankerCID;	//庄家的CID 
+		2 require int							iTokenOwnerCID;//令牌持有人 
+		3 require map<int,long>					mCID_UID;		//CID_UID映射
+		4 require map<int,MJContext::HandTiles>	mCID_OthersTiles; //其他人的可见手牌
+	};
+	struct TMJ_notifyPlayerAuto
+	{
+		0 require int iCID;		//用户CID
+		1 require bool bAuto;	//是否托管		
+	};
+	struct TMJ_actionPlayerAuto
+	{
+		0 require int iCID;		//用户CID	
+		1 require bool bAuto;	//是否托管	
+	};
+	struct TMJ_actionPlayerReady
+	{
+		0 require int	iCID;		//用户CID
+	};
+	struct TMJ_notifyGameBegin
+	{
+		0 require int mj_iNowRound;		//当前局数或者圈数
+		1 require int mj_iAllRound;		//全部局数或者圈数
+	};
+	struct TMJ_notifyChoseZhuang	//通知定庄 
+	{
+		0 require  int  nBankerCID;		//庄家ID 
+		1 optional int dice1;			//骰子1
+		2 optional int dice2;			//骰子2
+	};
+	struct TMJ_actionJiaPiao	//用户加飘
+	{
+		0 require int iPiaoPoint; //加飘的点数
+		1 require int iCID; //用户CID
+	};
+	struct TMJ_notifyDealTile   //通知发牌**
+	{
+		0 require MJContext::HandTiles sSelfTiles;//抓到的手牌
+	};
+	struct TMJ_notifyDrawedTile	 //1.通知所有人 某玩家抓到牌
+	{
+		0 require			  int		iTileWallNums;
+		1 require			  int		iCID;
+		2 optional MJContext::E_MJTILE	eDrawedTile;  
+	};
+	struct TMJ_actionDoDiscard		//某玩家出牌
+	{
+		0 require  MJContext::E_MJTILE  eDisCardedTile;
+		1 require  int 	iCID;
+		2 optional int  iDisCardCounts;		//s -> c 用于牌桌上已出牌的定位
+	};
+	struct TMJ_notifyCanCPGHG	////.通知某玩家可吃碰杠胡
+	{
+		0 require int  iCID;	
+		1 require vector<MJContext::MJActNode>  mj_vActs;	
+		2 optional vector<int>  vCanChi;//可吃的组合
+	};
+	struct TMJ_actionChoseCPGHG		//5.用户选择吃碰杠胡过** 
+	{
+		0 require MJContext::MJActNode  eChosenAction;
+	};
+	struct TMJ_notifyActivedCPGHG//通知所有人 产生动作  //令牌移交 
+	{
+		0 require MJContext::MJActNode sAct;		//动作节点
+		1 require vector<int>		   vAllTiles;	//全部手牌
+		2 optional MJContext::ChiPengGang		   sCPG;		//吃碰杠数组
+	};
+	struct TMJ_notifyZhuaNiao		//通知所有人抓鸟的情况
+	{		
+		0 require vector<int> 		vNiaoTiles;			//鸟牌数组
+		1 require int 				wallNumas;			//牌城剩余卡牌数
+	};
+	struct TMJ_notifyRoundFinish		//一轮结束需要发送的数据
+	{
+		0 require int iBankerCID;		//庄家
+		1 require vector<MJContext::HandTiles> vTiles;		//全部玩家手牌
+		2 require int mj_nHuederCID;     //胡牌的玩家CID
+		3 require int iNowRound;
+		4 require int iAllRound;
+		5 optional vector<MJContext::MJPlayerScores> vScoreDetail;		//分数详情
+		6 require bool bFinished;		//是否是最后一轮
+	};
+	struct TMJ_notifyGameFinish		//通知玩家总结算数据
+	{
+		0 require vector<MJContext::MJResult> vMJResult;
+		1 require vector<int> vScores;
+		2 require vector<int> vWiners;	
+	};
+	struct TDebug_notifyPushMJTableContext//获取完整上下文
+	{
+		0 require MJContext::MJTableContext sContext;
+	};
+	struct TMJ_notifyPushStatDataNew
+	{
+		0 require MJContext::E_MJ_GAMESTATUS eMJState;	//游戏当前状态
+		1 require vector<byte> vecMsgData; //游戏数据
+	};
+/*
+ *		以下结构体用做断线重连
+ */
+	struct TResumePreTile				//发牌前的场景恢复
+	{
+		0 require int mj_iNowRound;		//当前局数或者圈数
+		1 require int mj_iAllRound;		//全部局数或者圈数
+		2 require int iZhuangCID;		//庄家的座位号
+		3 require vector<int> vPlayerScores;		//玩家的分数
+		4 require vector<bool> vBPlayerReady;		//玩家是否准备
+	};
+	struct TResumeJiaPiao				//加漂的场景恢复
+	{
+		0 require TResumePreTile sPreTile;		//发牌前的数据
+		1 require vector<int> vPiaoPoint; 		//加飘的点数
+	};
+	struct TResumePlaying				//游戏中的场景恢复
+	{
+		0 require TResumeJiaPiao sPiaoStat;						//加漂时的数据
+		1 require int wallNumas;								//牌城剩余卡牌数
+		2 require int iTokenOwnerCID;							//令牌持有人
+		3 require vector<MJContext::HandTiles> vAllHandtiles;	//全部玩家的手牌
+		4 require map<int, vector<int>>	mCID_DisCarded;			//玩家已出的牌
+		5 optional TMJ_notifyCanCPGHG	sCanAct;				//玩家可执行的动作集合
+		6 require int	mj_iLastTilepos;	//上一个出牌玩家所出牌的位置
+		7 require int 	mj_iLastOuterCID;	//上一个出牌玩家
+		8 optional vector<bool>	v_bIsauto;	//四个人的托管状态
+	};
+
+/*
+ *	配牌器
+ */
+	struct TMJ_Test                          //配牌器 
+	{
+		0 require int  iCID;
+		1 require int  iType;                //配牌类型（1.发牌 2.换牌 3.抓牌）		
+		2 require vector<int> vTiles;	     //配牌数组
+	};
+
+/*
+ *	录像相关
+ */
+	struct TMJ_PlayerInfo					//用户信息
+	{
+		0 require int		iCID;			//玩家cid
+		1 require string	sNick;			//玩家昵称
+		2 require string	sUrl;			//玩家头像url
+		3 require int 		iScore;			//玩家分数
+		4 require long   	iPlayerID;		//玩家pid
+	};
+
+	struct TMJ_VideoMsg						//单条录像消息
+	{
+		0 require map<E_CMD_TYPE, vector<byte>>		mType_Msg;			//类型到数据的映射
+	};
+
+	struct TMJ_Video_Dealtile				//录像中发牌的数据,要发4个人
+	{
+		0 require map<int, vector<int>>		mCID_Handtile;			//cid_手牌的映射
+	};
+
+	struct TMJ_VideoData					//全部录像数据
+	{
+		0 require vector<TMJ_PlayerInfo>	vPlayerInfo;			//用户信息数组
+		1 require map<int,TMJ_VideoMsg>		mCount_VideoMsg;		//录像数据
+	};
+};
+

@@ -1,0 +1,13 @@
+
+module JFGameSoProto
+{
+	const int iProtoVersion = 1001;
+	/* So通用消息, 每个游戏消息必须使用TSoMsg作为协议包头 */
+	struct TSoMsg
+	{
+		0 require short nVer;	//版本
+		1 require byte  nCmd;	// 命令字
+		2 optional vector<byte> vecMsgData; //消息数据		
+	};
+};
+

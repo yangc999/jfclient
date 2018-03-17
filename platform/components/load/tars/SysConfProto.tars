@@ -1,0 +1,317 @@
+module systemconfig
+{
+    // 结构占位
+    struct PlaceHolder
+    {
+        0 require   int         placeHolder;
+    };
+
+    // 根据key值获取配置请求
+    struct GetValueByKeyReq
+    {
+        0 require   string      confKey;            // 配置key值
+    };
+    // 根据key值获取配置应答
+    struct GetValueByKeyResp
+    {
+        0 require   string      confValue;          // 应答值
+    };
+
+    // 根据key值组获取配置列表请求
+    struct ListConfigByKeyGroupReq
+    {
+        0 require   string      keyGroup;           // key组名
+    };
+    // 根据key值组获取配置列表应答
+    struct Config
+    {
+        0 require   string      keyName;            // key名
+        1 require   string      value;              // 值
+    };
+    struct ListConfigByKeyGroupResp
+    {
+        0 require   vector<Config>  configList;    // 应答值
+    };
+
+    // 根据gameId获取游戏配置列表请求
+    struct ListGameConfByGameIdReq
+    {
+        0 require   int         gameId;          // 游戏id
+    };
+    // 根据gameId获取游戏配置列表应答
+    struct Option
+    {
+        0 require   int         optionId;           // 选项id
+        1 require   string      optionValue;        // 选项值
+        2 require   string      description;        // 描述
+    };
+    struct GameConfig
+    {
+        0 require   int         id;                 // 游戏配置记录id
+        1 require   string      gameName;           // 游戏名称
+        2 require   string      optionCode;         // 选项代码
+        3 require   string      optionName;         // 选项名称
+        4 require   int         optionType;         // 游戏选项: 1单选，2多选，3不定项
+        5 require   string      remark;             // 备注
+        6 require   vector<Option> optionList;      // 游戏选项列表
+    };
+    struct ListGameConfByGameIdResp
+    {
+        0 require   vector<GameConfig>  gameConfigList;
+    };
+
+    // 通过key列表批量获取config列表请求
+    struct ListConfByKeyListReq
+    {
+        0 require   vector<string>      keyList;    // key列表
+    };
+    // 通过key列表批量获取config列表应答
+    struct ListConfByKeyListResp
+    {
+        0 require   vector<Config>  configList;    // 应答值
+    };
+
+    // 根据gameId获取游戏房间配置列表请求
+    struct ListGameRoomByGameIdListReq
+    {
+        0 require   vector<int>         gameIdList; // 游戏id列表
+    };
+    // 根据gameId获取游戏房间配置列表应答
+    struct GameRoom
+    {
+        0 require   int         gameId;             // 游戏id
+        1 require   string      roomId;             // 房间id
+        2 require   string      roomName;           // 房间名称
+        3 require   int         minGold;             // 最少携带金币
+        4 require   int         maxGold;             // 最大携带金币
+        5 require   int         kickoutBelowGold;    // 低于该金币踢出
+        6 require   int         antes;               // 底注
+        7 require   int         agentId;             // 代理商id
+        8 require   int         deskNum;             // 桌子数量
+        9 require   int         gameType;            // 游戏类型,1:私人场，2:金币场自由坐桌，3：金币场快速开始
+        10 require  int         dynamicReportTime;   // 动态上传时间，单位秒
+        11 require  int         autoSitWaitTime;     // 自动坐桌排队时间，单位秒
+        12 require  int         initPoint;           // 初始积分
+        13 require  int         minPlayers;          // 最小玩家数量
+        14 require  int         maxPlayers;          // 最大玩家数量
+        15 require  string      tableRule;           // 房间规则
+        16 require  string      gameConfig;          // 游戏玩法配置
+    };
+    struct ListGameRoomByGameIdListResp
+    {
+        0 require   vector<GameRoom>    gameRoomList;
+    };
+
+     // 通过游戏id列表批量获取游戏房间配置列表给客户端请求
+    struct ListGameRoomClientReq
+    {
+        0 require   vector<int>         gameIdList; // 游戏id列表
+    };
+    // 通过游戏id列表批量获取游戏房间配置列表给客户端应答
+    struct GameRoomClient
+    {
+        0 require   int         gameId;             // 游戏id
+        1 require   string      roomId;             // 房间id
+        2 require   string      gameName;           // 游戏名称
+        3 require   int         gameType;           // 游戏类型,1:私人场，2:金币场自由坐桌，3：金币场快速开始
+        4 require   int         maxPlayers;          // 最大玩家数量
+        5 require   int         deskNum;             // 桌子数量
+        6 require   int         minGold;             // 最小携带金币
+    };
+    struct ListGameRoomClientResp
+    {
+        0 require   vector<GameRoomClient>  gameRoomClientList;
+    };
+
+    // 通过长文本类型获取长文本列表请求
+    struct ListLongTextByTypeReq
+    {
+        0 require   int         textType;          // 文本类型，1：轮播，2：跑马灯
+    };
+    // 通过长文本类型获取长文本列表应答
+    struct LongText
+    {
+        0 require   int         id;                 // id，用于区分是否含重复
+        1 require   string      text;               // 正文
+    };
+    struct ListLongTextByTypeResp
+    {
+        0 require   vector<LongText>    longTextList;
+    };
+
+    struct ListAnnouncementBaseReq
+    {
+         0 require  int         id;                 // 仅用于保持结构
+    };
+    // 获取公告列表基础信息应答
+    struct AnnouncementBase
+    {
+        0 require   int         id;                 // id
+        1 require   string      title;              // 标题
+    };
+    struct ListAnnouncementBaseResp
+    {
+        0 require   vector<AnnouncementBase>    announcementBaseList;  // 公告基础信息列表
+    };
+
+     // 获取根据id获取公告
+    struct GetAnnouncementByIdReq
+    {
+        0 require   int         id;                 // id
+    };
+    struct GetAnnouncementByIdResp
+    {
+        0 require   int         textType;           // 文本类型,0：纯文本，1：图片url
+        1 require   string      body;               // 正文
+    };
+
+    // 根据任务id列表获取任务列表
+    struct ListTaskByIdListReq
+    {
+        0 require   vector<int>         taskIdList; // 任务id列表
+    };
+    struct Task
+    {
+        0 require   int         id;                 // 任务id
+        1 require   string      name;               // 名称
+        2 require   string      desc;               // 描述
+        3 require   string      icon;               // 图标
+        4 require   int         gameId;             // 游戏ID，非游戏任务为0
+        5 require   int         taskType;           // 任务类型：1 游戏任务 2 每日任务 3 成长任务
+        6 require   int         availableCount;     // 任务可用次数
+        7 require   int         rewardType;         // 奖励类型，1:复合类型，2:分阶段，11:金币，12:房卡，13:钻石
+        8 require   int         rewardValue;        // 奖励值
+        9 require   int         relative;           // 关系,当奖励类型为复合类型、分阶段等时关联对应的列表
+    };
+    struct ListTaskByIdListResp
+    {
+        0 require   vector<Task>    taskList;      // 任务列表
+    };
+
+    // 根据关系获取任务关系列表
+    struct ListTaskRelationByRelativeReq
+    {
+        0 require   int             relative;     // 关系
+    };
+    struct Relation
+    {
+        0 require   int         id;                 // 关系id
+        1 require   string      triggerKey;         // 触发任务键（空或null为无条件）
+        2 require   int         triggerValue;       // 触发任务值（0为无）
+        3 require   string      icon;               // 图标
+        4 require   int         rewardType;         // 奖励类型：0 不奖励 1 金币 2 钻石 3 房卡 4 道具
+        5 require   int         rewardCount;        // 奖励数量
+        6 require   int         propId;             // 奖励道具ID
+    };
+    struct ListTaskRelationByRelativeResp
+    {
+        0 require   vector<Relation>    taskList;      // 任务列表
+    };
+
+    // 根据id获取游戏配置列表
+    struct ListGameConfByIdListReq
+    {
+        0 require   vector<int>             idList;     // 配置id列表
+    };
+    struct ListGameConfByIdListResp
+    {
+       0 require    vector<GameConfig>  gameConfigList;
+    };
+
+    // 根据购买类型获取商城订单配置
+    struct ListShopOrderConfByGainTypeReq
+    {
+        0 require   int             gainType;     // 购买商品类型：1人民币(单位:分),2钻石,3房卡,4金币
+        1 require   int             position;     // 出现位置：0商城，1游戏快捷支付
+    };
+    struct ShopOrderConf
+    {
+        0 require   int         id;                 // id
+        1 require   string      title;              // 商品标题
+        2 require   string      icon;               // 图标
+        3 require   int         payType;            // 支付类型
+        4 require   int         payValue;           // 支付值
+        5 require   int         gainType;           // 获取类型
+        6 require   int         gainValue;          // 获取值
+    };
+    struct ListShopOrderConfByGainTypeResp
+    {
+        0 require   vector<ShopOrderConf>   shopOderConfList;      // 商城订单配置列表
+    };
+
+    // 根据id列表获取订单配置
+    struct GetOrderConfByIdReq
+    {
+        0 require   int             id;             // id
+    };
+    struct OrderConf
+    {
+        0 require   int         payType;            // 支付类型
+        1 require   int         payValue;           // 支付值
+        2 require   int         gainType;           // 获取类型
+        3 require   int         gainValue;          // 获取值
+        4 require   int         position;           // 出现位置：0商城，1游戏快捷支付
+        5 require   int         id;                 // id
+    };
+
+    // 根据多个条件获取版本列表
+    struct ListVersionByMutiReq
+    {
+        0 require   string      projectName;          // 项目名
+        1 require   int         osValue;            // 操作系统类型: 1 Windows , 2 安卓 ,3 苹果
+        2 optional  string      version;            // 版本号
+    };
+    struct Version
+    {
+        0 require   string      projectName;         // 项目名
+        1 require   int         osValue;            // 操作系统类型: 1 Windows , 2 安卓 ,3 苹果
+        2 require   string      version;            // 版本号
+        3 require   int         updateType;        // 更新类型
+        4 require   string      description;       // 描述
+        5 require   string      packageUrl;        // 打包路径
+        6 require   string      rollbackTag;           // 回滚标示，1 表示此版本需要回滚， 0 表示不要
+    };
+    struct ListVersionByMutiResp
+    {
+        0 require   vector<Version>     versionList;      // 版本列表
+    };
+
+    // 根据幸运转盘类型获取幸运转盘列表
+    struct ListLuckyRollerByRollerTypeReq
+    {
+        0 require   int         rollerType;          // 转盘类型: 1 免费 2 付费
+    };
+    struct LuckyRoller
+    {
+        0 require   int         id;                 // id
+        1 require   int         rollerType;         // 转盘类型: 1 免费 2 付费
+        2 require   int         awardType;          // 奖励类型: 2钻石,3房卡,4金币
+        3 require   int         awardValue;         // 奖励值
+        4 require   string      awardName;          // 奖励名称
+        5 require   string      icon;               // 图标
+        6 require   int         percentage;         // 百分比
+        7 require   int         isBroadcast;        // 抽中之后是否需要广播，0否，1是
+    };
+    struct ListLuckyRollerByRollerTypeResp
+    {
+        0 require   vector<LuckyRoller>     luckRollerList;      // 幸运转盘列表
+    };
+
+    // 根据id列表获取订单配置
+    struct GetLuckyRollerByIdReq
+    {
+        0 require   int             id;             // id
+    };
+
+    // 根据多个查询条件获取商城订单配置
+    struct ListShopOrderConfByMutiReq
+    {
+        0 require   int             gainType;     // 购买商品类型：1人民币(单位:分),2钻石,3房卡,4金币
+        1 require   int             payType;      // 获得类型：1人民币(单位:分),2钻石,3房卡,4金币
+        2 require   int             position;     // 出现位置：0商城，1游戏快捷支付
+    };
+    struct ListShopOrderConfByMutiResp
+    {
+        0 require   vector<OrderConf>   oderConfList;      // 订单配置列表
+    };
+};

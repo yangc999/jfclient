@@ -1,0 +1,27 @@
+module websocket
+{		
+	//用户标识
+	struct TUid
+	{
+		0 require	long    lUid;    //用户ID
+		1 require   string  sToken;	 //登录token值
+	};
+
+	// websocket 客户端请求
+	struct WebsocketPackage
+	{
+		0 require	int 		iVer;			// 版本号
+		1 require	int			iSeq;			// 序列号
+		2 require	TUid		stUid;			// 用户标识
+		3 require	int 		iReqId;			// 请求id
+		4 require	string 		sUrl;		    // 请求地址
+		5 require	int 		iStatus;	    // 状态码，客户端不用填，服务返回结果码
+		6 optional	vector<byte> vecData;		// 命令对应的协议数据
+	};
+
+    struct WebscoketPushData
+    {
+        0 require	long    lUid;                   //用户ID
+        1 require	vector<byte> vecData;		    //推送的数据
+    };
+};

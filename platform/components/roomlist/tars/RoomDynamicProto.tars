@@ -1,0 +1,56 @@
+module roomdynamic
+{
+
+	struct GetDeskConfByRoomIdReq
+	{
+        0 require	string 		roomId;	            // 房间id
+	};
+	struct GetDeskConfByRoomIdResp
+	{
+		0 require	int 		deskNum;	         // 桌子数量（从0开始编号）
+        1 require	int 		playerNum;	         // 每张桌子的玩家数量
+	};
+
+    struct ListDeskInfoByDeskIdListReq
+    {
+        1 require	string 		roomId;	            // 房间id
+        2 require	vector<int> 		deskIdList; // 桌子id列表
+    };
+    struct Player
+    {
+        0 require	long 		uid;	             // 用户id
+        1 require	int 		position;	         // 座位，从0开始
+    };
+    struct DeskInfo
+	{
+		0 require	int 		   deskId;	         // 桌子id
+		1 require	int 		   status;	         // 0未开始，1已开始
+        2 require	vector<Player> playerList;       // 玩家列表
+        3 require	int serverId;                    // 服务id
+	};
+	struct ListDeskInfoByDeskIdListResp
+    {
+        0 require	vector<DeskInfo> 		deskInfoList; // 桌子信息列表
+    };
+
+    struct ReportDeskConfReq
+	{
+		0 require	int 		serverId;	        // 服务id
+        1 require	string 		roomId;	            // 房间id
+        2 require	int 		deskNum;	         // 桌子数量（从0开始编号）
+        3 require	int 		playerNum;	         // 每张桌子最大玩家数量
+	};
+	struct DeskChange
+    {
+        0 require	int 		   deskId;	           // 桌号，从0开始
+        1 require	int 		   status;	           // 0未开始，1已开始
+        2 require	vector<Player> playerAddList;      // 新加入玩家列表
+        3 require	vector<Player> playerExitList;      // 退出的玩家列表
+    };
+	struct ReportDeskChangeListReq
+    {
+        0 require	int 		serverId;	        // 服务id
+        1 require	string 		roomId;	            // 房间id
+        2 require	vector<DeskChange> deskChangeList;      // 桌子人员变化列表
+    };
+};

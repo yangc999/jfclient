@@ -1,0 +1,1 @@
+cc.exports.ResultCommand = import(".command.ResultCommand")

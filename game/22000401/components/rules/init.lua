@@ -1,0 +1,1 @@
+cc.exports.RulesCommand = import(".command.RulesCommand")

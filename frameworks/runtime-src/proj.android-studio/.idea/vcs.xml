@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="svn" />
+    <mapping directory="E:/Android/sdk/ndk-bundle/sources/android/cpufeatures" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/cocos" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/extensions/GUI/CCControlExtension" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/extensions/GUI/CCScrollView" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/extensions/Particle3D" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/extensions/assets-manager" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/extensions/physics-nodes" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/Box2D/Collision" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/Box2D/Common" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/Box2D/Dynamics" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/Box2D/Rope" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/ConvertUTF" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/android-specific/pvmp3dec/src" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/android-specific/tremolo/Tremolo" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/clipper" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/edtaa3func" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/flatbuffers" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/lua/luasocket" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/lua/tolua" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/md5" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/poly2tri/common" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/poly2tri/sweep" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/recast/DebugUtils" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/recast/Detour" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/recast/DetourCrowd" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/recast/DetourTileCache" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/recast/fastlz" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/tinyxml2" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/unzip" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/xxhash" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/external/xxtea" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/plugin/plugins/alipay/proj.android-studio" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/plugin/plugins/weixin/proj.android-studio" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../../cocos2d-x/plugin/protocols/proj.android-studio" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/../Classes" vcs="svn" />
+  </component>
+</project>

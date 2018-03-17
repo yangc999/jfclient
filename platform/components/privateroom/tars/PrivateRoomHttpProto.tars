@@ -1,0 +1,181 @@
+module privateroom
+{
+	enum Eum_Action
+	{
+		E_A_CREATEROOM=0,     	//创建房间
+		E_A_PERSONROOMINFO=1   	//私人场房间信息 
+		
+	};
+
+	struct TRoomServiceMsg
+	{
+		0 require 	Eum_Action	              eAct;		          //动作指令
+		1 require 	vector<byte>              vecData;  		  //请求数据	
+	};
+
+    //房间解散原因
+    enum Eum_Dismiss_Type
+    {
+        //0.房间未解散 1.房主要求解散 2.投票解散 3.达到游戏局数 4.房间期限已到 5.服务器重启
+        DISMISS_PRIVATE_ROOM_MASTER = 1,		//房主解散(已开局)
+        DISMISS_PRIVATE_ROOM_ALL_AGREE = 2,		//投票解散
+        DISMISS_PRIVATE_ROOM_GAME_OVER = 3,		//游戏结束自动解散
+        DISMISS_PRIVATE_ROOM_TIMEOUT = 4,		//到期自动解散
+        DISMISS_PRIVATE_ROOM_REBOOT = 5,		//重启服务端
+        DISMISS_PRIVATE_ROOM_IDLE = 6			//闲置房间解散(未开局)
+    };
+
+    //配置2
+    struct Option
+    {
+        0 require	int 		optionId;	        // 选项id
+        1 require	string 		optionValue;        // 选项值
+    };
+    //私人场个人配置信息字段1
+    struct PersonRoomConfig
+    {
+        0 require	int 			id;				// 游戏配置记录id
+        1 require	string 			optionCode;	    // 选项代码
+        2 require	vector<Option> 	optionList;	    // 游戏选项列表
+    };
+    struct PersonRoomConfigList
+    {
+        0 require   vector<PersonRoomConfig>  ePersonRoomConfig; //私人场个人配置信息
+    };
+
+
+    //私人场房间信息字段
+    struct PersonRoomList
+    {
+        0 require 	string		sRoomid;		//房间ID
+        1 optional 	string		sRoomname;		//房间名称
+        2 require 	long		iGameid;		//游戏ID
+        3 require	int		    iMasterid;		//房主ID
+        4 require 	string		sRoomKey;		//房间暗号
+        5 optional	string		sCreateTime;	//创建时间
+        6 require 	int		    iDismissType;	//房间解散类型
+        7 optional  PersonRoomConfigList  ePersonRoomConfig; //私人场个人配置信息
+    };
+
+
+    //配置1
+    struct Config
+    {
+        0 require	int 			id;				// 游戏配置记录id
+        1 require	string 			optionCode;	    // 选项代码
+        2 require	vector<Option> 	optionList;	    // 游戏选项列表
+    };
+    struct ConfigList
+    {
+        0 require	vector<Config>	vConfigList; 	// 配置
+    };
+
+    //房间信息
+    struct RoomInfo
+    {
+        0 require	string			sRoomNo; 		//房间编号
+        1 require	long			lMasterUid;		//房主ID
+        2 require	string			sRoomKey ; 		//房间暗号
+        3 require	int				iGameID;		//游戏ID
+        4 optional	int				iPayments ; 	//开房花费
+        5 optional	long			lCreateTime;  	//创建时间(时间戳)
+        6 optional	ConfigList		vConfigList; 	// 配置
+    };
+
+    //===============解散房间Start ===============
+	struct ReqDismiss
+	{
+		0 require 	string 				sRoomKey; 		//房间暗号
+		1 require 	string 				sRoomNo;		//房间编号
+		2 require 	Eum_Dismiss_Type	eReason; 		//解散理由编号
+		3 require 	vector<long> 		vUserList; 		//此房间用户列表
+		4 require 	vector<long> 		vWinersList;	//大赢家列表
+	};
+	struct RspDismiss
+	{
+		0 require int iResult; //结果码
+	};
+	//===============解散房间End ===============
+
+
+
+	//==============加入房间Start=====================
+	struct ReqAddRoom
+	{
+		0 require string iRoomKey;		//房间暗号
+		1 require int	 iServerId;		//服务端编号
+		2 require long	lUid;			//加入者UID
+
+	};
+	struct RspAddRoom
+	{
+		0 require	int			iresult;	 	//结果 (存在? 解散?)
+		1 optional	RoomInfo	info; 			//返回房间信息;
+		2 require	string		sRoomId;		//房间初始化ID
+		3 require	int			iAntiCheating;	//是否防作弊: 1 是  0 不是
+	};
+	//==============加入房间End=====================
+
+
+
+	//========================内部房间信息获取=============
+	struct BookRoomInfo
+	{
+		0	require string 		sRoomNo;		//房间编号
+		1	require int			iGameId;		//游戏ID
+		2	require	long		lMasterId;		//房主ID
+		3	require	long		lCreateTime;	//创建时间
+		4	require int			iDismiessType;	//解散类型
+		5	require	long		lDismiessTime;	//解散时间
+		6	require	string		sConfigDesc;	//房间配置明文
+		7	require int			iServerId;		//服务端ID
+		8	require	string		sRoomId;		//房间初始化ID
+		9	require	int		    iAnitCheating;	//防作弊标识
+	};
+	struct ReqBookRoomInfo
+	{
+		0 require	string	sRoomNo;//房间编号
+		1 require	long	lUid;	//用户ID
+	};
+	struct RspBookRoomInfo
+	{
+		0 require int iResult;//状态码;
+		1 optional BookRoomInfo	eInfo;//房间信息
+	};
+	//========================内部房间信息获取End=============
+
+
+	//请求私人场房间信息数据 Start ===============
+	struct TReqPerson
+	{
+		0 require       long                      lUid;                  //玩家ID
+		1 require       int                       iGameid;               //游戏ID
+	};   
+	//返回私人场房间信息数据
+	struct TRspPerson
+	{
+		0 require   int			              iRetCode;			      //消息编号 
+		1 optional 	vector<PersonRoomList>	  vPersonRoomList;        //私人场房间信息
+	};
+	
+	//请求私人场房间信息数据 End =============== 
+	//===============创建房间Start=========
+
+	//请求数据
+	struct ReqCreateRoom
+	{
+		0	require	int			GameID;			//游戏ID
+		1	require	long		MasterUserID;	//房主用户ID
+		2	require	ConfigList	configList;		//房间配置
+		3	require	string		sRoomId;		//房间初始化ID,这个就是金盾要的ID
+		4	require int			iAntiCheating;	//是否防作弊: 1 是  0 不是
+	};
+
+	//返回数据
+	struct RspCreateRoom
+	{
+		0 require int iresult;   //状态码
+		1 optional RoomInfo info; //返回房间信息
+	};
+	//==============创建房间end===========================
+};

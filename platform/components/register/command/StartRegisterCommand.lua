@@ -1,0 +1,4 @@
+
+local StartRegisterCommand = {}
+
+return StartRegisterCommand

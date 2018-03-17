@@ -1,0 +1,6 @@
+cc.exports.DeskInfoCommand = import(".command.DeskInfoCommand")
+cc.exports.DIStartGameCommand = import(".command.DIStartGameCommand")
+cc.exports.DIMakeNtCommand = import(".command.DIMakeNtCommand")
+cc.exports.DIGetTokenCommand = import(".command.DIGetTokenCommand")
+cc.exports.DINiaoCardCommand = import(".command.DINiaoCardCommand")
+cc.exports.DIGameStationCommand = import(".command.DIGameStationCommand")
